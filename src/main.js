@@ -9,34 +9,25 @@ import { applyASCII } from './ascii.js';
 import { applyGLFilter } from './glFilters.js';
 import { applyWave, resetWave } from './wave.js';
 
-// ---- State ----
-const state = {
+// ---- Defaults (single source of truth) ----
+const DEFAULTS = Object.freeze({
   speed: 1,
   shape: 'rect',
   regionStyle: 'basic',
   filter: 'none',
-  voronoiThreshold: 0.5,
-  voronoiJumpDist:  0.5,
-  voronoiFalloff:   0.5,
-  voronoiEdgeLines: 0.0,
-  caDensity:        0.5,
-  caStability:      0.5,
-  caEvolutionSpeed: 0.5,
-  caSourceInflux:   0.5,
-  asciiCellSize:      0.3,
-  asciiContrast:      0.3,
-  asciiBlackThresh:   0.2,
-  asciiGlyphStrength: 0.9,
+  voronoiThreshold: 0.5, voronoiJumpDist: 0.5, voronoiFalloff: 0.5, voronoiEdgeLines: 0.0,
+  caDensity: 0.5, caStability: 0.5, caEvolutionSpeed: 0.5, caSourceInflux: 0.5,
+  asciiCellSize: 0.3, asciiContrast: 0.3, asciiBlackThresh: 0.2, asciiGlyphStrength: 0.9,
   shatterCells: 0.3, shatterCrack: 0.2, shatterFill: 0.5, shatterRandom: 0.8,
   erodeMode: 0,      erodeRadius: 0.3,  erodeStrength: 0.7, erodeEdge: 0.0,
   oxideCorr: 0.5,    oxideMetal: 0.0,   oxideRough: 0.3,    oxideSheen: 0.3,
   synthWarm: 0.5,    synthSep: 0.3,     synthRes: 0.4,      synthDyn: 0.7,
   biolumGlow: 0.7,   biolumColor: 0.0,  biolumPulse: 0.2,   biolumDepth: 0.7,
   thermoCont: 0.4,   thermoHot: 0.0,    thermoCold: 0.1,    thermoWhite: 0.5,
-  falsePalette: 0.25,falseBand: 0.0,    falseBandCnt: 0.5,  falseBright: 0.5,
+  falsePalette: 0.25, falseBand: 0,     falseBandCnt: 0.5,  falseBright: 0.5,
   waveSource: 0.5,   waveDamp: 0.3,     waveSpeed: 0.5,     waveContr: 0.5,
   connectionRate: 0.25,
-  threshold: 15,
+  threshold: 30,
   maxBlobs: 12,
   detectMode: 'motion',
   updateInterval: 1,
@@ -44,11 +35,15 @@ const state = {
   blobSize: 64,
   fontSize: 11,
   overlayColor: '#ffffff',
-  hasSource: false,
-};
+});
 
-let frameCount   = 0;
-let cachedBlobs  = [];
+const STORAGE_KEY = 'fluxkit-state-v1';
+
+const state = { ...DEFAULTS, hasSource: false };
+
+let frameCount  = 0;
+let cachedBlobs = [];
+let rafHandle   = 0;
 
 // ---- DOM refs ----
 const video       = document.getElementById('video');
@@ -57,111 +52,238 @@ const ctx         = canvas.getContext('2d', { willReadFrequently: true });
 const placeholder = document.getElementById('placeholder');
 const fileInput   = document.getElementById('file-input');
 const canvasArea  = document.getElementById('canvas-area');
+const fileStatus  = document.getElementById('file-status');
+const toastRegion = document.getElementById('toast-region');
+const btnSnapshot = document.getElementById('btn-snapshot');
+const btnReset    = document.getElementById('btn-reset');
 
 // ---- Offscreen canvas for half-res blob detection ----
 const offscreen = document.createElement('canvas');
 const offCtx    = offscreen.getContext('2d', { willReadFrequently: true });
-const DETECT_SCALE = 0.5; // run detection at 50% resolution
+const DETECT_SCALE = 0.5;
 
-// ---- Toggle group wiring ----
-function wireToggleGroup(groupId, stateKey, onChange) {
+// ---- Toast (accessible inline notifications, replaces alert()) ----
+function showToast(message, kind = 'info', timeoutMs = 4000) {
+  const node = document.createElement('div');
+  node.className = `toast toast-${kind}`;
+  node.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  node.textContent = message;
+  toastRegion.appendChild(node);
+  setTimeout(() => node.remove(), timeoutMs);
+}
+
+// ---- Configs driving slider + toggle wiring ----
+// Each slider: [inputId, stateKey, parser]
+const SLIDER_CONFIG = [
+  ['voronoi-threshold',   'voronoiThreshold',   parseFloat],
+  ['voronoi-jump-dist',   'voronoiJumpDist',    parseFloat],
+  ['voronoi-falloff',     'voronoiFalloff',     parseFloat],
+  ['voronoi-edge-lines',  'voronoiEdgeLines',   parseFloat],
+  ['ca-density',          'caDensity',          parseFloat],
+  ['ca-stability',        'caStability',        parseFloat],
+  ['ca-evolution-speed',  'caEvolutionSpeed',   parseFloat],
+  ['ca-source-influx',    'caSourceInflux',     parseFloat],
+  ['ascii-cell-size',     'asciiCellSize',      parseFloat],
+  ['ascii-contrast',      'asciiContrast',      parseFloat],
+  ['ascii-black-thresh',  'asciiBlackThresh',   parseFloat],
+  ['ascii-glyph-strength','asciiGlyphStrength', parseFloat],
+  ['shatter-cells',       'shatterCells',       parseFloat],
+  ['shatter-crack',       'shatterCrack',       parseFloat],
+  ['shatter-fill',        'shatterFill',        parseFloat],
+  ['shatter-random',      'shatterRandom',      parseFloat],
+  ['erode-radius',        'erodeRadius',        parseFloat],
+  ['erode-strength',      'erodeStrength',      parseFloat],
+  ['erode-edge',          'erodeEdge',          parseFloat],
+  ['oxide-corr',          'oxideCorr',          parseFloat],
+  ['oxide-metal',         'oxideMetal',         parseFloat],
+  ['oxide-rough',         'oxideRough',         parseFloat],
+  ['oxide-sheen',         'oxideSheen',         parseFloat],
+  ['synth-warm',          'synthWarm',          parseFloat],
+  ['synth-sep',           'synthSep',           parseFloat],
+  ['synth-res',           'synthRes',           parseFloat],
+  ['synth-dyn',           'synthDyn',           parseFloat],
+  ['biolum-glow',         'biolumGlow',         parseFloat],
+  ['biolum-color',        'biolumColor',        parseFloat],
+  ['biolum-pulse',        'biolumPulse',        parseFloat],
+  ['biolum-depth',        'biolumDepth',        parseFloat],
+  ['thermo-cont',         'thermoCont',         parseFloat],
+  ['thermo-hot',          'thermoHot',          parseFloat],
+  ['thermo-cold',         'thermoCold',         parseFloat],
+  ['thermo-white',        'thermoWhite',        parseFloat],
+  ['false-palette',       'falsePalette',       parseFloat],
+  ['false-bandcnt',       'falseBandCnt',       parseFloat],
+  ['false-bright',        'falseBright',        parseFloat],
+  ['wave-source',         'waveSource',         parseFloat],
+  ['wave-damp',           'waveDamp',           parseFloat],
+  ['wave-speed',          'waveSpeed',          parseFloat],
+  ['wave-contr',          'waveContr',          parseFloat],
+  ['connection-rate',     'connectionRate',     parseFloat],
+  ['sensitivity',         'threshold',          parseFloat],
+  ['max-blobs',           'maxBlobs',           parseInt],
+  ['update-interval',     'updateInterval',     parseInt],
+  ['stroke-width',        'strokeWidth',        parseFloat],
+  ['font-size',           'fontSize',           parseInt],
+];
+
+const GL_SECTIONS    = ['voronoi','cellular','ascii','shatter','erode','wave','oxide','synth','biolum','thermo','falsecolor'];
+const FULL_FRAME_SET = new Set(GL_SECTIONS);
+const GL_RESETS      = { voronoi: resetVoronoi, cellular: resetCA, wave: resetWave };
+
+// Each toggle group: [groupId, stateKey, parser, onChangeFn?]
+const TOGGLE_CONFIG = [
+  ['speed-group',       'speed',       parseFloat, (v) => { video.playbackRate = v; }],
+  ['shape-group',       'shape',       String,     null],
+  ['style-group',       'regionStyle', String,     null],
+  ['filter-group',      'filter',      String,     onFilterChange],
+  ['detect-mode-group', 'detectMode',  String,     () => { resetFrameHistory(); }],
+  ['blob-size-group',   'blobSize',    parseInt,   null],
+  ['erode-mode-group',  'erodeMode',   parseInt,   null],
+  ['false-band-group',  'falseBand',   parseInt,   null],
+];
+
+function onFilterChange(v) {
+  for (const name of GL_SECTIONS) {
+    const el = document.getElementById(`${name}-controls`);
+    if (el) el.classList.toggle('hidden', v !== name);
+  }
+  for (const [name, fn] of Object.entries(GL_RESETS)) {
+    if (v !== name) fn();
+  }
+  // Bring the newly-revealed panel into view so the user doesn't have to hunt for it.
+  const active = document.getElementById(`${v}-controls`);
+  if (active && !active.classList.contains('hidden')) {
+    active.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ---- Wiring ----
+function wireSlider(inputId, stateKey, parser) {
+  const slider = document.getElementById(inputId);
+  const valEl  = document.getElementById(`${inputId}-val`);
+  if (!slider) return;
+  slider.addEventListener('input', () => {
+    state[stateKey] = parser(slider.value);
+    if (valEl) valEl.textContent = slider.value;
+    schedulePersist();
+  });
+}
+
+function wireToggleGroup(groupId, stateKey, parser, onChange) {
   const group = document.getElementById(groupId);
   if (!group) return;
   group.addEventListener('click', (e) => {
     const btn = e.target.closest('.toggle-btn');
     if (!btn) return;
-    group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state[stateKey] = btn.dataset.value;
+    setToggleGroupValue(groupId, btn.dataset.value);
+    state[stateKey] = parser(btn.dataset.value);
     if (onChange) onChange(state[stateKey]);
+    schedulePersist();
+  });
+  group.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const buttons = [...group.querySelectorAll('.toggle-btn')];
+    const i = buttons.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = e.key === 'ArrowRight' ? (i + 1) % buttons.length : (i - 1 + buttons.length) % buttons.length;
+    buttons[next].focus();
+    buttons[next].click();
+    e.preventDefault();
   });
 }
 
-function wireSlider(sliderId, valId, stateKey, transform) {
-  const slider = document.getElementById(sliderId);
-  const valEl  = document.getElementById(valId);
-  if (!slider) return;
-  slider.addEventListener('input', () => {
-    state[stateKey] = transform ? transform(slider.value) : parseFloat(slider.value);
-    valEl.textContent = slider.value;
+function setToggleGroupValue(groupId, value) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  const buttons = group.querySelectorAll('.toggle-btn');
+  const isRadio = group.getAttribute('role') === 'radiogroup';
+  buttons.forEach(b => {
+    const match = b.dataset.value === String(value);
+    b.classList.toggle('active', match);
+    if (isRadio) b.setAttribute('aria-checked', match ? 'true' : 'false');
+    else         b.setAttribute('aria-pressed', match ? 'true' : 'false');
   });
 }
 
-wireToggleGroup('speed-group',  'speed',       (v) => { video.playbackRate = parseFloat(v); });
-wireToggleGroup('shape-group',  'shape',        null);
-wireToggleGroup('style-group',  'regionStyle',  null);
-const GL_SECTIONS    = ['voronoi','cellular','ascii','shatter','erode','wave','oxide','synth','biolum','thermo','falsecolor'];
-const FULL_FRAME_SET = new Set(GL_SECTIONS);
-const GL_RESETS   = { voronoi: resetVoronoi, cellular: resetCA, wave: resetWave };
-
-wireToggleGroup('filter-group', 'filter', (v) => {
-  for (const name of GL_SECTIONS) {
-    const el = document.getElementById(`${name}-controls`);
-    if (el) el.style.display = v === name ? '' : 'none';
-  }
-  for (const [name, fn] of Object.entries(GL_RESETS)) {
-    if (v !== name) fn();
-  }
-});
-
-wireToggleGroup('detect-mode-group', 'detectMode', (v) => { resetFrameHistory(); });
-wireSlider('voronoi-threshold',  'voronoi-threshold-val',  'voronoiThreshold',  parseFloat);
-wireSlider('voronoi-jump-dist',  'voronoi-jump-dist-val',  'voronoiJumpDist',   parseFloat);
-wireSlider('voronoi-falloff',    'voronoi-falloff-val',    'voronoiFalloff',    parseFloat);
-wireSlider('voronoi-edge-lines', 'voronoi-edge-lines-val', 'voronoiEdgeLines',  parseFloat);
-wireSlider('ca-density',         'ca-density-val',         'caDensity',         parseFloat);
-wireSlider('ca-stability',       'ca-stability-val',       'caStability',       parseFloat);
-wireSlider('ca-evolution-speed', 'ca-evolution-speed-val', 'caEvolutionSpeed',  parseFloat);
-wireSlider('ca-source-influx',      'ca-source-influx-val',      'caSourceInflux',    parseFloat);
-wireSlider('ascii-cell-size',       'ascii-cell-size-val',       'asciiCellSize',     parseFloat);
-wireSlider('ascii-contrast',        'ascii-contrast-val',        'asciiContrast',     parseFloat);
-wireSlider('ascii-black-thresh',    'ascii-black-thresh-val',    'asciiBlackThresh',  parseFloat);
-wireSlider('ascii-glyph-strength',  'ascii-glyph-strength-val',  'asciiGlyphStrength',parseFloat);
-wireSlider('shatter-cells',   'shatter-cells-val',   'shatterCells',  parseFloat);
-wireSlider('shatter-crack',   'shatter-crack-val',   'shatterCrack',  parseFloat);
-wireSlider('shatter-fill',    'shatter-fill-val',    'shatterFill',   parseFloat);
-wireSlider('shatter-random',  'shatter-random-val',  'shatterRandom', parseFloat);
-wireSlider('erode-mode',      'erode-mode-val',      'erodeMode',     parseFloat);
-wireSlider('erode-radius',    'erode-radius-val',    'erodeRadius',   parseFloat);
-wireSlider('erode-strength',  'erode-strength-val',  'erodeStrength', parseFloat);
-wireSlider('erode-edge',      'erode-edge-val',      'erodeEdge',     parseFloat);
-wireSlider('oxide-corr',      'oxide-corr-val',      'oxideCorr',     parseFloat);
-wireSlider('oxide-metal',     'oxide-metal-val',     'oxideMetal',    parseFloat);
-wireSlider('oxide-rough',     'oxide-rough-val',     'oxideRough',    parseFloat);
-wireSlider('oxide-sheen',     'oxide-sheen-val',     'oxideSheen',    parseFloat);
-wireSlider('synth-warm',      'synth-warm-val',      'synthWarm',     parseFloat);
-wireSlider('synth-sep',       'synth-sep-val',       'synthSep',      parseFloat);
-wireSlider('synth-res',       'synth-res-val',       'synthRes',      parseFloat);
-wireSlider('synth-dyn',       'synth-dyn-val',       'synthDyn',      parseFloat);
-wireSlider('biolum-glow',     'biolum-glow-val',     'biolumGlow',    parseFloat);
-wireSlider('biolum-color',    'biolum-color-val',    'biolumColor',   parseFloat);
-wireSlider('biolum-pulse',    'biolum-pulse-val',    'biolumPulse',   parseFloat);
-wireSlider('biolum-depth',    'biolum-depth-val',    'biolumDepth',   parseFloat);
-wireSlider('thermo-cont',     'thermo-cont-val',     'thermoCont',    parseFloat);
-wireSlider('thermo-hot',      'thermo-hot-val',      'thermoHot',     parseFloat);
-wireSlider('thermo-cold',     'thermo-cold-val',     'thermoCold',    parseFloat);
-wireSlider('thermo-white',    'thermo-white-val',    'thermoWhite',   parseFloat);
-wireSlider('false-palette',   'false-palette-val',   'falsePalette',  parseFloat);
-wireSlider('false-band',      'false-band-val',      'falseBand',     parseFloat);
-wireSlider('false-bandcnt',   'false-bandcnt-val',   'falseBandCnt',  parseFloat);
-wireSlider('false-bright',    'false-bright-val',    'falseBright',   parseFloat);
-wireSlider('wave-source',     'wave-source-val',     'waveSource',    parseFloat);
-wireSlider('wave-damp',       'wave-damp-val',       'waveDamp',      parseFloat);
-wireSlider('wave-speed',      'wave-speed-val',      'waveSpeed',     parseFloat);
-wireSlider('wave-contr',      'wave-contr-val',      'waveContr',     parseFloat);
-wireSlider('connection-rate',  'connection-rate-val',  'connectionRate',  parseFloat);
-wireSlider('sensitivity',      'sensitivity-val',      'threshold',       parseFloat);
-wireSlider('max-blobs',        'max-blobs-val',        'maxBlobs',        parseInt);
-wireSlider('update-interval',  'update-interval-val',  'updateInterval',  parseInt);
-wireSlider('stroke-width',     'stroke-width-val',     'strokeWidth',     parseFloat);
-wireToggleGroup('blob-size-group', 'blobSize', (v) => { state.blobSize = parseInt(v); });
-wireSlider('font-size', 'font-size-val', 'fontSize', parseInt);
+SLIDER_CONFIG.forEach(([id, key, parser]) => wireSlider(id, key, parser));
+TOGGLE_CONFIG.forEach(([id, key, parser, onChange]) => wireToggleGroup(id, key, parser, onChange));
 
 const colorPicker = document.getElementById('overlay-color');
 const colorLabel  = document.getElementById('overlay-color-val');
 colorPicker.addEventListener('input', () => {
   state.overlayColor = colorPicker.value;
   colorLabel.textContent = colorPicker.value;
+  schedulePersist();
+});
+
+// ---- Apply state to UI (used after restore + reset) ----
+function applyStateToUI() {
+  for (const [id, key] of SLIDER_CONFIG) {
+    const slider = document.getElementById(id);
+    const valEl  = document.getElementById(`${id}-val`);
+    if (!slider) continue;
+    slider.value = String(state[key]);
+    if (valEl) valEl.textContent = slider.value;
+  }
+  for (const [groupId, key, , onChange] of TOGGLE_CONFIG) {
+    setToggleGroupValue(groupId, state[key]);
+    if (onChange) onChange(state[key]);
+  }
+  colorPicker.value = state.overlayColor;
+  colorLabel.textContent = state.overlayColor;
+  video.playbackRate = state.speed;
+}
+
+// ---- Persistence (debounced localStorage) ----
+let persistTimer = 0;
+function schedulePersist() {
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    try {
+      const { hasSource, ...persistable } = state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
+    } catch { /* quota or disabled — silently ignore */ }
+  }, 200);
+}
+
+function loadPersistedState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return;
+    for (const k of Object.keys(DEFAULTS)) {
+      if (k in parsed) state[k] = parsed[k];
+    }
+  } catch { /* corrupt — ignore */ }
+}
+
+// ---- Reset ----
+btnReset.addEventListener('click', () => {
+  for (const k of Object.keys(DEFAULTS)) state[k] = DEFAULTS[k];
+  applyStateToUI();
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+  showToast('Reset to defaults', 'ok', 2500);
+});
+
+// ---- Snapshot (canvas → PNG download) ----
+btnSnapshot.addEventListener('click', () => {
+  if (!state.hasSource) {
+    showToast('Load a video or open the camera first', 'error');
+    return;
+  }
+  canvas.toBlob((blob) => {
+    if (!blob) { showToast('Snapshot failed', 'error'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    a.href = url;
+    a.download = `fluxkit-${ts}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('Frame saved', 'ok', 2000);
+  }, 'image/png');
 });
 
 // ---- File upload ----
@@ -169,29 +291,29 @@ document.getElementById('btn-upload').addEventListener('click', () => fileInput.
 fileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  loadVideoSource(URL.createObjectURL(file));
+  loadVideoSource(URL.createObjectURL(file), file.name);
 });
 
 // ---- Camera ----
 document.getElementById('btn-camera').addEventListener('click', async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(t => t.stop());
+    }
+    video.removeAttribute('src');
     video.srcObject = stream;
-    video.play();
-    resetFrameHistory();
-    resetVoronoi();
-    resetCA();
-    resetWave();
-    cachedBlobs = [];
-    frameCount  = 0;
-    setHasSource(true);
+    await video.play();
+    resetAllState();
+    setHasSource(true, 'Camera');
+    showToast('Camera active', 'ok', 2000);
   } catch (err) {
-    alert('Could not access camera: ' + err.message);
+    showToast(`Camera unavailable: ${err.message || err.name}`, 'error', 6000);
   }
 });
 
 // ---- Load video ----
-function loadVideoSource(url) {
+function loadVideoSource(url, label) {
   if (video.srcObject) {
     video.srcObject.getTracks().forEach(t => t.stop());
     video.srcObject = null;
@@ -199,6 +321,11 @@ function loadVideoSource(url) {
   video.src = url;
   video.loop = true;
   video.play().catch(() => {});
+  resetAllState();
+  setHasSource(true, label || 'Video');
+}
+
+function resetAllState() {
   resetFrameHistory();
   resetTracker();
   resetVoronoi();
@@ -206,13 +333,32 @@ function loadVideoSource(url) {
   resetWave();
   cachedBlobs = [];
   frameCount  = 0;
-  setHasSource(true);
 }
 
-function setHasSource(val) {
+function setHasSource(val, label) {
   state.hasSource = val;
   placeholder.style.display = val ? 'none' : 'flex';
+  btnSnapshot.disabled = !val;
+  if (val) {
+    const dims = (video.videoWidth && video.videoHeight)
+      ? ` · ${video.videoWidth}×${video.videoHeight}`
+      : '';
+    fileStatus.textContent = (label || 'Source loaded') + dims;
+    if (val && rafHandle === 0) {
+      rafHandle = requestAnimationFrame(renderFrame);
+    }
+  } else {
+    fileStatus.textContent = 'No source loaded';
+  }
 }
+
+video.addEventListener('loadedmetadata', () => {
+  resizeCanvas();
+  if (state.hasSource && video.videoWidth && video.videoHeight) {
+    const current = fileStatus.textContent.split(' · ')[0];
+    fileStatus.textContent = `${current} · ${video.videoWidth}×${video.videoHeight}`;
+  }
+});
 
 // ---- Canvas sizing ----
 function resizeCanvas() {
@@ -241,26 +387,24 @@ function resizeCanvas() {
 }
 
 window.addEventListener('resize', resizeCanvas);
-video.addEventListener('loadedmetadata', resizeCanvas);
 
 // ---- Main render loop ----
+// rAF only runs while a source is active (gated in setHasSource / renderFrame).
 function renderFrame() {
-  requestAnimationFrame(renderFrame);
-  resizeCanvas();
-
   if (!state.hasSource) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    rafHandle = 0;
     return;
   }
+  rafHandle = requestAnimationFrame(renderFrame);
+  resizeCanvas();
+
   if (video.readyState < 2 || video.videoWidth === 0) return;
 
   const cw = canvas.width;
   const ch = canvas.height;
 
-  // Draw video to display canvas (full res)
   ctx.drawImage(video, 0, 0, cw, ch);
 
-  // --- Blob detection on half-res offscreen ---
   const ow = Math.max(1, Math.round(cw * DETECT_SCALE));
   const oh = Math.max(1, Math.round(ch * DETECT_SCALE));
   if (offscreen.width !== ow || offscreen.height !== oh) {
@@ -288,7 +432,6 @@ function renderFrame() {
   }
   const blobs = cachedBlobs;
 
-  // --- Full-frame WebGL effects (run before blob overlays) ---
   const f = state.filter;
   if (f === 'voronoi') {
     applyVoronoi(ctx, video, cw, ch, {
@@ -326,7 +469,10 @@ function renderFrame() {
     applyGLFilter('falsecolor', ctx, video, cw, ch, [state.falsePalette, state.falseBand, state.falseBandCnt, state.falseBright]);
   }
 
-  // --- Per-blob sub-region filter (reads only blob pixels, not full frame) ---
+  // Per-blob CPU filters: getImageData/putImageData per blob is a known pipeline
+  // stall (CPU<->GPU round-trip per region). Acceptable for the current
+  // architecture because it only runs for non-GL filters; if blob counts grow
+  // large, batch into a single full-frame getImageData read.
   if (state.filter !== 'none' && !FULL_FRAME_SET.has(state.filter)) {
     for (const blob of blobs) {
       const bx = Math.max(0, Math.floor(blob.x));
@@ -341,11 +487,12 @@ function renderFrame() {
     }
   }
 
-  // Draw overlays on top of everything
   drawOverlays(ctx, blobs, state.regionStyle, state.shape, state.connectionRate, state.strokeWidth, state.blobSize, state.fontSize, state.overlayColor);
 }
 
+// ---- Init ----
+loadPersistedState();
+applyStateToUI();
 canvas.width  = canvasArea.clientWidth;
 canvas.height = canvasArea.clientHeight;
-
-requestAnimationFrame(renderFrame);
+btnSnapshot.disabled = !state.hasSource;

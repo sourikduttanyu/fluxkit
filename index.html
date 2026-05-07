@@ -9,305 +9,317 @@
   </head>
   <body>
     <div id="app">
-      <!-- Hidden video element -->
       <video id="video" playsinline muted loop style="display:none;"></video>
 
-      <!-- Sidebar -->
-      <aside id="sidebar">
+      <aside id="sidebar" aria-label="FluxKit controls">
         <div class="sidebar-header">
-          <span class="logo">ARTKIT</span>
-          <span class="logo-sub">FluxKit</span>
+          <div class="sidebar-header-text">
+            <span class="logo">ARTKIT</span>
+            <span class="logo-sub">FluxKit</span>
+          </div>
+          <div class="header-actions">
+            <button id="btn-snapshot" class="icon-btn" type="button" title="Save current frame as PNG" disabled>Save</button>
+            <button id="btn-reset"    class="icon-btn" type="button" title="Reset all controls to defaults">Reset</button>
+          </div>
         </div>
 
         <!-- Input -->
-        <section class="control-section">
-          <div class="section-label">Input</div>
-          <button id="btn-upload" class="action-btn">Upload Video</button>
-          <button id="btn-camera" class="action-btn">Open Camera</button>
-          <input type="file" id="file-input" accept="video/*" style="display:none;" />
+        <section class="control-section" aria-label="Video input">
+          <div class="section-label" id="lbl-input">Input</div>
+          <button id="btn-upload" class="action-btn" type="button">Upload Video</button>
+          <button id="btn-camera" class="action-btn" type="button">Open Camera</button>
+          <input type="file" id="file-input" accept="video/*" class="hidden" />
+          <div id="file-status" class="file-status" aria-live="polite">No source loaded</div>
         </section>
 
         <!-- Video Speed -->
         <section class="control-section">
-          <div class="section-label">Video Speed</div>
-          <div class="toggle-group" id="speed-group">
-            <button class="toggle-btn active" data-value="1">1X</button>
-            <button class="toggle-btn" data-value="2">2X</button>
-            <button class="toggle-btn" data-value="3">3X</button>
-            <button class="toggle-btn" data-value="4">4X</button>
+          <div class="section-label" id="lbl-speed">Video Speed</div>
+          <div class="toggle-group" id="speed-group" role="radiogroup" aria-labelledby="lbl-speed">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="1">1X</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="2">2X</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="3">3X</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="4">4X</button>
           </div>
         </section>
 
         <!-- Shape -->
         <section class="control-section">
-          <div class="section-label">Shape</div>
-          <div class="toggle-group" id="shape-group">
-            <button class="toggle-btn active" data-value="rect" title="Rectangle">&#9633;</button>
-            <button class="toggle-btn" data-value="circle" title="Circle">&#9675;</button>
-            <button class="toggle-btn" data-value="rounded" title="Rounded Rect">&#9645;</button>
-            <button class="toggle-btn" data-value="diamond" title="Diamond">&#9671;</button>
+          <div class="section-label" id="lbl-shape">Shape</div>
+          <div class="toggle-group" id="shape-group" role="radiogroup" aria-labelledby="lbl-shape">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="rect"    aria-label="Rectangle">&#9633;</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="circle"  aria-label="Circle">&#9675;</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="rounded" aria-label="Rounded rectangle">&#9645;</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="diamond" aria-label="Diamond">&#9671;</button>
           </div>
         </section>
 
         <!-- Region Style -->
         <section class="control-section">
-          <div class="section-label">Region Style</div>
-          <div class="toggle-group" id="style-group">
-            <button class="toggle-btn active" data-value="basic">Basic</button>
-            <button class="toggle-btn" data-value="label">Label</button>
-            <button class="toggle-btn" data-value="frame">Frame</button>
+          <div class="section-label" id="lbl-style">Region Style</div>
+          <div class="toggle-group" id="style-group" role="radiogroup" aria-labelledby="lbl-style">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="basic">Basic</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="label">Label</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="frame">Frame</button>
           </div>
         </section>
 
         <!-- Filter Effects -->
         <section class="control-section">
-          <div class="section-label">Filter</div>
-          <div class="toggle-group" id="filter-group">
-            <button class="toggle-btn active" data-value="none">None</button>
-            <button class="toggle-btn" data-value="inv">Inv</button>
-            <button class="toggle-btn" data-value="thermal">Thermal</button>
-            <button class="toggle-btn" data-value="voronoi">Voronoi</button>
-            <button class="toggle-btn" data-value="cellular">Cellular</button>
-            <button class="toggle-btn" data-value="ascii">ASCII</button>
-            <button class="toggle-btn" data-value="shatter">Shatter</button>
-            <button class="toggle-btn" data-value="erode">Erode</button>
-            <button class="toggle-btn" data-value="wave">Wave</button>
-            <button class="toggle-btn" data-value="oxide">Oxide</button>
-            <button class="toggle-btn" data-value="synth">Synth</button>
-            <button class="toggle-btn" data-value="biolum">BioLum</button>
-            <button class="toggle-btn" data-value="thermo">Thermo</button>
-            <button class="toggle-btn" data-value="falsecolor">FalseClr</button>
+          <div class="section-label" id="lbl-filter">Filter</div>
+          <div class="toggle-group" id="filter-group" role="radiogroup" aria-labelledby="lbl-filter">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="none"       aria-label="No filter">None</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="inv"        aria-label="Invert colors">Inv</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="thermal"    aria-label="Thermal palette">Thermal</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="voronoi"    aria-label="Voronoi diffusion">Voronoi</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="cellular"   aria-label="Cellular automata">Cellular</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="ascii"      aria-label="ASCII shader">ASCII</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="shatter"    aria-label="Voronoi shatter">Shatter</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="erode"      aria-label="Erode or dilate">Erode</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="wave"       aria-label="Wave propagation">Wave</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="oxide"      aria-label="Oxide patina">Oxide</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="synth"      aria-label="Synesthetic colors">Synth</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="biolum"     aria-label="Bioluminescent glow">BioLum</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="thermo"     aria-label="Full-frame thermal">Thermo</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="falsecolor" aria-label="False color palette">FalseClr</button>
           </div>
         </section>
 
-        <!-- Voronoi params (shown when Voronoi filter active) -->
-        <section class="control-section" id="voronoi-controls" style="display:none;">
-          <div class="section-label">Voronoi — Threshold</div>
+        <!-- Voronoi -->
+        <section class="control-section hidden" id="voronoi-controls">
+          <label class="section-label" for="voronoi-threshold">Voronoi — Threshold</label>
           <div class="slider-row">
             <input type="range" id="voronoi-threshold" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="voronoi-threshold-val">0.5</span>
+            <span class="slider-val" id="voronoi-threshold-val" aria-hidden="true">0.5</span>
           </div>
-          <div class="section-label">Jump Distance</div>
+          <div class="slider-anchors" aria-hidden="true"><span>0</span><span>1</span></div>
+          <label class="section-label" for="voronoi-jump-dist">Jump Distance</label>
           <div class="slider-row">
             <input type="range" id="voronoi-jump-dist" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="voronoi-jump-dist-val">0.5</span>
+            <span class="slider-val" id="voronoi-jump-dist-val" aria-hidden="true">0.5</span>
           </div>
-          <div class="section-label">Falloff</div>
+          <label class="section-label" for="voronoi-falloff">Falloff</label>
           <div class="slider-row">
             <input type="range" id="voronoi-falloff" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="voronoi-falloff-val">0.5</span>
+            <span class="slider-val" id="voronoi-falloff-val" aria-hidden="true">0.5</span>
           </div>
-          <div class="section-label">Edge Lines</div>
+          <label class="section-label" for="voronoi-edge-lines">Edge Lines</label>
           <div class="slider-row">
             <input type="range" id="voronoi-edge-lines" min="0" max="1" step="0.01" value="0" />
-            <span class="slider-val" id="voronoi-edge-lines-val">0</span>
+            <span class="slider-val" id="voronoi-edge-lines-val" aria-hidden="true">0</span>
           </div>
         </section>
 
-        <!-- Cellular Life params -->
-        <section class="control-section" id="cellular-controls" style="display:none;">
-          <div class="section-label">Cellular — Density</div>
+        <!-- Cellular Life -->
+        <section class="control-section hidden" id="cellular-controls">
+          <label class="section-label" for="ca-density">Cellular — Density</label>
           <div class="slider-row">
             <input type="range" id="ca-density" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="ca-density-val">0.5</span>
+            <span class="slider-val" id="ca-density-val" aria-hidden="true">0.5</span>
           </div>
-          <div class="section-label">Stability</div>
+          <label class="section-label" for="ca-stability">Stability</label>
           <div class="slider-row">
             <input type="range" id="ca-stability" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="ca-stability-val">0.5</span>
+            <span class="slider-val" id="ca-stability-val" aria-hidden="true">0.5</span>
           </div>
-          <div class="section-label">Evolution Speed</div>
+          <label class="section-label" for="ca-evolution-speed">Evolution Speed</label>
           <div class="slider-row">
             <input type="range" id="ca-evolution-speed" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="ca-evolution-speed-val">0.5</span>
+            <span class="slider-val" id="ca-evolution-speed-val" aria-hidden="true">0.5</span>
           </div>
-          <div class="section-label">Source Influx</div>
+          <label class="section-label" for="ca-source-influx">Source Influx</label>
           <div class="slider-row">
             <input type="range" id="ca-source-influx" min="0" max="1" step="0.01" value="0.5" />
-            <span class="slider-val" id="ca-source-influx-val">0.5</span>
+            <span class="slider-val" id="ca-source-influx-val" aria-hidden="true">0.5</span>
           </div>
         </section>
 
-        <!-- ASCII Luma params -->
-        <section class="control-section" id="ascii-controls" style="display:none;">
-          <div class="section-label">ASCII — Cell Size</div>
+        <!-- ASCII Luma -->
+        <section class="control-section hidden" id="ascii-controls">
+          <label class="section-label" for="ascii-cell-size">ASCII — Cell Size</label>
           <div class="slider-row">
             <input type="range" id="ascii-cell-size" min="0" max="1" step="0.01" value="0.3" />
-            <span class="slider-val" id="ascii-cell-size-val">0.3</span>
+            <span class="slider-val" id="ascii-cell-size-val" aria-hidden="true">0.3</span>
           </div>
-          <div class="section-label">Contrast</div>
+          <label class="section-label" for="ascii-contrast">Contrast</label>
           <div class="slider-row">
             <input type="range" id="ascii-contrast" min="0" max="1" step="0.01" value="0.3" />
-            <span class="slider-val" id="ascii-contrast-val">0.3</span>
+            <span class="slider-val" id="ascii-contrast-val" aria-hidden="true">0.3</span>
           </div>
-          <div class="section-label">Black Threshold</div>
+          <label class="section-label" for="ascii-black-thresh">Black Threshold</label>
           <div class="slider-row">
             <input type="range" id="ascii-black-thresh" min="0" max="1" step="0.01" value="0.2" />
-            <span class="slider-val" id="ascii-black-thresh-val">0.2</span>
+            <span class="slider-val" id="ascii-black-thresh-val" aria-hidden="true">0.2</span>
           </div>
-          <div class="section-label">Glyph Strength</div>
+          <label class="section-label" for="ascii-glyph-strength">Glyph Strength</label>
           <div class="slider-row">
             <input type="range" id="ascii-glyph-strength" min="0" max="1" step="0.01" value="0.9" />
-            <span class="slider-val" id="ascii-glyph-strength-val">0.9</span>
+            <span class="slider-val" id="ascii-glyph-strength-val" aria-hidden="true">0.9</span>
           </div>
         </section>
 
         <!-- Shatter -->
-        <section class="control-section" id="shatter-controls" style="display:none;">
-          <div class="section-label">Shatter — Cell Count</div>
-          <div class="slider-row"><input type="range" id="shatter-cells" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="shatter-cells-val">0.3</span></div>
-          <div class="section-label">Crack Width</div>
-          <div class="slider-row"><input type="range" id="shatter-crack" min="0" max="1" step="0.01" value="0.2"/><span class="slider-val" id="shatter-crack-val">0.2</span></div>
-          <div class="section-label">Cell Fill</div>
-          <div class="slider-row"><input type="range" id="shatter-fill" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="shatter-fill-val">0.5</span></div>
-          <div class="section-label">Randomness</div>
-          <div class="slider-row"><input type="range" id="shatter-random" min="0" max="1" step="0.01" value="0.8"/><span class="slider-val" id="shatter-random-val">0.8</span></div>
+        <section class="control-section hidden" id="shatter-controls">
+          <label class="section-label" for="shatter-cells">Shatter — Cell Count</label>
+          <div class="slider-row"><input type="range" id="shatter-cells" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="shatter-cells-val" aria-hidden="true">0.3</span></div>
+          <label class="section-label" for="shatter-crack">Crack Width</label>
+          <div class="slider-row"><input type="range" id="shatter-crack" min="0" max="1" step="0.01" value="0.2"/><span class="slider-val" id="shatter-crack-val" aria-hidden="true">0.2</span></div>
+          <label class="section-label" for="shatter-fill">Cell Fill</label>
+          <div class="slider-row"><input type="range" id="shatter-fill" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="shatter-fill-val" aria-hidden="true">0.5</span></div>
+          <label class="section-label" for="shatter-random">Randomness</label>
+          <div class="slider-row"><input type="range" id="shatter-random" min="0" max="1" step="0.01" value="0.8"/><span class="slider-val" id="shatter-random-val" aria-hidden="true">0.8</span></div>
         </section>
 
-        <!-- Erode -->
-        <section class="control-section" id="erode-controls" style="display:none;">
-          <div class="section-label">Erode — Mode (0=erode 1=dilate)</div>
-          <div class="slider-row"><input type="range" id="erode-mode" min="0" max="1" step="1" value="0"/><span class="slider-val" id="erode-mode-val">0</span></div>
-          <div class="section-label">Radius</div>
-          <div class="slider-row"><input type="range" id="erode-radius" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="erode-radius-val">0.3</span></div>
-          <div class="section-label">Strength</div>
-          <div class="slider-row"><input type="range" id="erode-strength" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="erode-strength-val">0.7</span></div>
-          <div class="section-label">Edge Ring</div>
-          <div class="slider-row"><input type="range" id="erode-edge" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="erode-edge-val">0</span></div>
+        <!-- Erode (Mode is now a real toggle) -->
+        <section class="control-section hidden" id="erode-controls">
+          <div class="section-label" id="lbl-erode-mode">Erode — Mode</div>
+          <div class="toggle-group" id="erode-mode-group" role="radiogroup" aria-labelledby="lbl-erode-mode">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="0">Erode</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="1">Dilate</button>
+          </div>
+          <label class="section-label" for="erode-radius">Radius</label>
+          <div class="slider-row"><input type="range" id="erode-radius" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="erode-radius-val" aria-hidden="true">0.3</span></div>
+          <label class="section-label" for="erode-strength">Strength</label>
+          <div class="slider-row"><input type="range" id="erode-strength" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="erode-strength-val" aria-hidden="true">0.7</span></div>
+          <label class="section-label" for="erode-edge">Edge Ring</label>
+          <div class="slider-row"><input type="range" id="erode-edge" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="erode-edge-val" aria-hidden="true">0</span></div>
         </section>
 
         <!-- Wave -->
-        <section class="control-section" id="wave-controls" style="display:none;">
-          <div class="section-label">Wave — Source Strength</div>
-          <div class="slider-row"><input type="range" id="wave-source" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="wave-source-val">0.5</span></div>
-          <div class="section-label">Damping</div>
-          <div class="slider-row"><input type="range" id="wave-damp" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="wave-damp-val">0.3</span></div>
-          <div class="section-label">Speed</div>
-          <div class="slider-row"><input type="range" id="wave-speed" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="wave-speed-val">0.5</span></div>
-          <div class="section-label">Contrast</div>
-          <div class="slider-row"><input type="range" id="wave-contr" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="wave-contr-val">0.5</span></div>
+        <section class="control-section hidden" id="wave-controls">
+          <label class="section-label" for="wave-source">Wave — Source Strength</label>
+          <div class="slider-row"><input type="range" id="wave-source" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="wave-source-val" aria-hidden="true">0.5</span></div>
+          <label class="section-label" for="wave-damp">Damping</label>
+          <div class="slider-row"><input type="range" id="wave-damp" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="wave-damp-val" aria-hidden="true">0.3</span></div>
+          <label class="section-label" for="wave-speed">Speed</label>
+          <div class="slider-row"><input type="range" id="wave-speed" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="wave-speed-val" aria-hidden="true">0.5</span></div>
+          <label class="section-label" for="wave-contr">Contrast</label>
+          <div class="slider-row"><input type="range" id="wave-contr" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="wave-contr-val" aria-hidden="true">0.5</span></div>
         </section>
 
         <!-- Oxide -->
-        <section class="control-section" id="oxide-controls" style="display:none;">
-          <div class="section-label">Oxide — Corrosion</div>
-          <div class="slider-row"><input type="range" id="oxide-corr" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="oxide-corr-val">0.5</span></div>
-          <div class="section-label">Metal (copper→iron→silver)</div>
-          <div class="slider-row"><input type="range" id="oxide-metal" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="oxide-metal-val">0</span></div>
-          <div class="section-label">Roughness</div>
-          <div class="slider-row"><input type="range" id="oxide-rough" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="oxide-rough-val">0.3</span></div>
-          <div class="section-label">Metallic Sheen</div>
-          <div class="slider-row"><input type="range" id="oxide-sheen" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="oxide-sheen-val">0.3</span></div>
+        <section class="control-section hidden" id="oxide-controls">
+          <label class="section-label" for="oxide-corr">Oxide — Corrosion</label>
+          <div class="slider-row"><input type="range" id="oxide-corr" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="oxide-corr-val" aria-hidden="true">0.5</span></div>
+          <label class="section-label" for="oxide-metal">Metal (copper → iron → silver)</label>
+          <div class="slider-row"><input type="range" id="oxide-metal" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="oxide-metal-val" aria-hidden="true">0</span></div>
+          <label class="section-label" for="oxide-rough">Roughness</label>
+          <div class="slider-row"><input type="range" id="oxide-rough" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="oxide-rough-val" aria-hidden="true">0.3</span></div>
+          <label class="section-label" for="oxide-sheen">Metallic Sheen</label>
+          <div class="slider-row"><input type="range" id="oxide-sheen" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="oxide-sheen-val" aria-hidden="true">0.3</span></div>
         </section>
 
         <!-- Synth -->
-        <section class="control-section" id="synth-controls" style="display:none;">
-          <div class="section-label">Synth — Warmth</div>
-          <div class="slider-row"><input type="range" id="synth-warm" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="synth-warm-val">0.5</span></div>
-          <div class="section-label">Separation</div>
-          <div class="slider-row"><input type="range" id="synth-sep" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="synth-sep-val">0.3</span></div>
-          <div class="section-label">Resonance</div>
-          <div class="slider-row"><input type="range" id="synth-res" min="0" max="1" step="0.01" value="0.4"/><span class="slider-val" id="synth-res-val">0.4</span></div>
-          <div class="section-label">Dynamic Range</div>
-          <div class="slider-row"><input type="range" id="synth-dyn" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="synth-dyn-val">0.7</span></div>
+        <section class="control-section hidden" id="synth-controls">
+          <label class="section-label" for="synth-warm">Synth — Warmth</label>
+          <div class="slider-row"><input type="range" id="synth-warm" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="synth-warm-val" aria-hidden="true">0.5</span></div>
+          <label class="section-label" for="synth-sep">Separation</label>
+          <div class="slider-row"><input type="range" id="synth-sep" min="0" max="1" step="0.01" value="0.3"/><span class="slider-val" id="synth-sep-val" aria-hidden="true">0.3</span></div>
+          <label class="section-label" for="synth-res">Resonance</label>
+          <div class="slider-row"><input type="range" id="synth-res" min="0" max="1" step="0.01" value="0.4"/><span class="slider-val" id="synth-res-val" aria-hidden="true">0.4</span></div>
+          <label class="section-label" for="synth-dyn">Dynamic Range</label>
+          <div class="slider-row"><input type="range" id="synth-dyn" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="synth-dyn-val" aria-hidden="true">0.7</span></div>
         </section>
 
         <!-- BioLum -->
-        <section class="control-section" id="biolum-controls" style="display:none;">
-          <div class="section-label">BioLum — Intensity</div>
-          <div class="slider-row"><input type="range" id="biolum-glow" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="biolum-glow-val">0.7</span></div>
-          <div class="section-label">Color (cyan→green→violet)</div>
-          <div class="slider-row"><input type="range" id="biolum-color" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="biolum-color-val">0</span></div>
-          <div class="section-label">Pulse</div>
-          <div class="slider-row"><input type="range" id="biolum-pulse" min="0" max="1" step="0.01" value="0.2"/><span class="slider-val" id="biolum-pulse-val">0.2</span></div>
-          <div class="section-label">Depth Fade</div>
-          <div class="slider-row"><input type="range" id="biolum-depth" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="biolum-depth-val">0.7</span></div>
+        <section class="control-section hidden" id="biolum-controls">
+          <label class="section-label" for="biolum-glow">BioLum — Intensity</label>
+          <div class="slider-row"><input type="range" id="biolum-glow" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="biolum-glow-val" aria-hidden="true">0.7</span></div>
+          <label class="section-label" for="biolum-color">Color (cyan → green → violet)</label>
+          <div class="slider-row"><input type="range" id="biolum-color" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="biolum-color-val" aria-hidden="true">0</span></div>
+          <label class="section-label" for="biolum-pulse">Pulse</label>
+          <div class="slider-row"><input type="range" id="biolum-pulse" min="0" max="1" step="0.01" value="0.2"/><span class="slider-val" id="biolum-pulse-val" aria-hidden="true">0.2</span></div>
+          <label class="section-label" for="biolum-depth">Depth Fade</label>
+          <div class="slider-row"><input type="range" id="biolum-depth" min="0" max="1" step="0.01" value="0.7"/><span class="slider-val" id="biolum-depth-val" aria-hidden="true">0.7</span></div>
         </section>
 
         <!-- Thermo -->
-        <section class="control-section" id="thermo-controls" style="display:none;">
-          <div class="section-label">Thermo — Contrast</div>
-          <div class="slider-row"><input type="range" id="thermo-cont" min="0" max="1" step="0.01" value="0.4"/><span class="slider-val" id="thermo-cont-val">0.4</span></div>
-          <div class="section-label">Hot Shift</div>
-          <div class="slider-row"><input type="range" id="thermo-hot" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="thermo-hot-val">0</span></div>
-          <div class="section-label">Cold Floor</div>
-          <div class="slider-row"><input type="range" id="thermo-cold" min="0" max="1" step="0.01" value="0.1"/><span class="slider-val" id="thermo-cold-val">0.1</span></div>
-          <div class="section-label">White Point</div>
-          <div class="slider-row"><input type="range" id="thermo-white" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="thermo-white-val">0.5</span></div>
+        <section class="control-section hidden" id="thermo-controls">
+          <label class="section-label" for="thermo-cont">Thermo — Contrast</label>
+          <div class="slider-row"><input type="range" id="thermo-cont" min="0" max="1" step="0.01" value="0.4"/><span class="slider-val" id="thermo-cont-val" aria-hidden="true">0.4</span></div>
+          <label class="section-label" for="thermo-hot">Hot Shift</label>
+          <div class="slider-row"><input type="range" id="thermo-hot" min="0" max="1" step="0.01" value="0"/><span class="slider-val" id="thermo-hot-val" aria-hidden="true">0</span></div>
+          <label class="section-label" for="thermo-cold">Cold Floor</label>
+          <div class="slider-row"><input type="range" id="thermo-cold" min="0" max="1" step="0.01" value="0.1"/><span class="slider-val" id="thermo-cold-val" aria-hidden="true">0.1</span></div>
+          <label class="section-label" for="thermo-white">White Point</label>
+          <div class="slider-row"><input type="range" id="thermo-white" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="thermo-white-val" aria-hidden="true">0.5</span></div>
         </section>
 
-        <!-- FalseColor -->
-        <section class="control-section" id="falsecolor-controls" style="display:none;">
-          <div class="section-label">FalseClr — Palette</div>
-          <div class="slider-row"><input type="range" id="false-palette" min="0" max="1" step="0.01" value="0.25"/><span class="slider-val" id="false-palette-val">0.25</span></div>
-          <div class="section-label">Banding (0=off 1=on)</div>
-          <div class="slider-row"><input type="range" id="false-band" min="0" max="1" step="1" value="0"/><span class="slider-val" id="false-band-val">0</span></div>
-          <div class="section-label">Band Count</div>
-          <div class="slider-row"><input type="range" id="false-bandcnt" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="false-bandcnt-val">0.5</span></div>
-          <div class="section-label">Brightness</div>
-          <div class="slider-row"><input type="range" id="false-bright" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="false-bright-val">0.5</span></div>
+        <!-- FalseColor (Banding is now a real toggle) -->
+        <section class="control-section hidden" id="falsecolor-controls">
+          <label class="section-label" for="false-palette">FalseClr — Palette</label>
+          <div class="slider-row"><input type="range" id="false-palette" min="0" max="1" step="0.01" value="0.25"/><span class="slider-val" id="false-palette-val" aria-hidden="true">0.25</span></div>
+          <div class="section-label" id="lbl-false-band">Banding</div>
+          <div class="toggle-group" id="false-band-group" role="radiogroup" aria-labelledby="lbl-false-band">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="0">Off</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="1">On</button>
+          </div>
+          <label class="section-label" for="false-bandcnt">Band Count</label>
+          <div class="slider-row"><input type="range" id="false-bandcnt" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="false-bandcnt-val" aria-hidden="true">0.5</span></div>
+          <label class="section-label" for="false-bright">Brightness</label>
+          <div class="slider-row"><input type="range" id="false-bright" min="0" max="1" step="0.01" value="0.5"/><span class="slider-val" id="false-bright-val" aria-hidden="true">0.5</span></div>
         </section>
 
         <!-- Connection -->
         <section class="control-section">
-          <div class="section-label">Connection Rate</div>
+          <label class="section-label" for="connection-rate">Connection Rate</label>
           <div class="slider-row">
             <input type="range" id="connection-rate" min="0" max="1" step="0.25" value="0.25" />
-            <span class="slider-val" id="connection-rate-val">0.25</span>
+            <span class="slider-val" id="connection-rate-val" aria-hidden="true">0.25</span>
           </div>
-          <div class="slider-ticks">
+          <div class="slider-ticks" aria-hidden="true">
             <span>0</span><span>0.25</span><span>0.5</span><span>0.75</span><span>1</span>
           </div>
         </section>
 
         <!-- Detect Mode -->
         <section class="control-section">
-          <div class="section-label">Detect Mode</div>
-          <div class="toggle-group" id="detect-mode-group">
-            <button class="toggle-btn active" data-value="motion">Motion</button>
-            <button class="toggle-btn" data-value="luma">Luma</button>
+          <div class="section-label" id="lbl-detect">Detect Mode</div>
+          <div class="toggle-group" id="detect-mode-group" role="radiogroup" aria-labelledby="lbl-detect">
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="motion">Motion</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="luma">Luma</button>
           </div>
         </section>
 
         <!-- Sensitivity -->
         <section class="control-section">
-          <div class="section-label">Sensitivity</div>
+          <label class="section-label" for="sensitivity">Sensitivity (10–100)</label>
           <div class="slider-row">
             <input type="range" id="sensitivity" min="10" max="100" step="1" value="30" />
-            <span class="slider-val" id="sensitivity-val">30</span>
+            <span class="slider-val" id="sensitivity-val" aria-hidden="true">30</span>
           </div>
         </section>
 
         <!-- Max Blobs -->
         <section class="control-section">
-          <div class="section-label">Max Blobs</div>
+          <label class="section-label" for="max-blobs">Max Blobs (5–30)</label>
           <div class="slider-row">
             <input type="range" id="max-blobs" min="5" max="30" step="1" value="12" />
-            <span class="slider-val" id="max-blobs-val">12</span>
+            <span class="slider-val" id="max-blobs-val" aria-hidden="true">12</span>
           </div>
         </section>
 
         <!-- Update Interval -->
         <section class="control-section">
-          <div class="section-label">Update Interval</div>
+          <label class="section-label" for="update-interval">Update Interval (frames)</label>
           <div class="slider-row">
             <input type="range" id="update-interval" min="1" max="30" step="1" value="1" />
-            <span class="slider-val" id="update-interval-val">1</span>
+            <span class="slider-val" id="update-interval-val" aria-hidden="true">1</span>
           </div>
         </section>
 
         <!-- Stroke Width -->
         <section class="control-section">
-          <div class="section-label">Stroke Width</div>
+          <label class="section-label" for="stroke-width">Stroke Width (px)</label>
           <div class="slider-row">
             <input type="range" id="stroke-width" min="0" max="4" step="0.5" value="1" />
-            <span class="slider-val" id="stroke-width-val">1</span>
+            <span class="slider-val" id="stroke-width-val" aria-hidden="true">1</span>
           </div>
         </section>
 
         <!-- Overlay Color -->
         <section class="control-section">
-          <div class="section-label">Overlay Color</div>
+          <label class="section-label" for="overlay-color">Overlay Color</label>
           <div class="color-row">
             <input type="color" id="overlay-color" value="#ffffff" />
             <span class="color-label" id="overlay-color-val">#ffffff</span>
@@ -316,22 +328,22 @@
 
         <!-- Font Size -->
         <section class="control-section">
-          <div class="section-label">Font Size</div>
+          <label class="section-label" for="font-size">Font Size (px)</label>
           <div class="slider-row">
             <input type="range" id="font-size" min="8" max="32" step="1" value="11" />
-            <span class="slider-val" id="font-size-val">11</span>
+            <span class="slider-val" id="font-size-val" aria-hidden="true">11</span>
           </div>
         </section>
 
         <!-- Blob Size -->
         <section class="control-section">
-          <div class="section-label">Blob Size</div>
-          <div class="toggle-group" id="blob-size-group">
-            <button class="toggle-btn" data-value="0">0</button>
-            <button class="toggle-btn" data-value="32">32</button>
-            <button class="toggle-btn active" data-value="64">64</button>
-            <button class="toggle-btn" data-value="128">128</button>
-            <button class="toggle-btn" data-value="256">256</button>
+          <div class="section-label" id="lbl-blobsize">Blob Size</div>
+          <div class="toggle-group" id="blob-size-group" role="radiogroup" aria-labelledby="lbl-blobsize">
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="0">0</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="32">32</button>
+            <button class="toggle-btn active" type="button" role="radio" aria-checked="true"  data-value="64">64</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="128">128</button>
+            <button class="toggle-btn"        type="button" role="radio" aria-checked="false" data-value="256">256</button>
           </div>
         </section>
 
@@ -340,17 +352,18 @@
         </div>
       </aside>
 
-      <!-- Canvas area -->
-      <main id="canvas-area">
-        <canvas id="main-canvas"></canvas>
+      <main id="canvas-area" aria-label="Live preview">
+        <canvas id="main-canvas" role="img" aria-label="Live video output with detection overlays and effects"></canvas>
         <div id="placeholder">
           <div class="placeholder-text">
-            <div class="placeholder-icon">&#9632;</div>
+            <div class="placeholder-icon" aria-hidden="true">&#9632;</div>
             <div>Upload a video or open camera to begin</div>
           </div>
         </div>
       </main>
     </div>
+
+    <div id="toast-region" role="region" aria-live="polite" aria-atomic="false" aria-label="Notifications"></div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
