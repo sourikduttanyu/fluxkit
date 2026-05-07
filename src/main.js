@@ -246,8 +246,14 @@ function initKnob(el) {
   knobRegistry.set(id, { setValue, getValue, min, max, step, default: def, stateKey });
 }
 
-// Initialise every [data-knob] element
+// Initialise every [data-knob] element.
+// Temporarily reveal hidden effect-cards so SVG layout + gradient resolution
+// happen against a real (non-display:none) parent. Re-hide immediately after;
+// applyStateToUI() will reveal the correct card based on persisted filter.
+const _hiddenCards = [...document.querySelectorAll('.effect-card.hidden')];
+_hiddenCards.forEach(c => c.classList.remove('hidden'));
 document.querySelectorAll('[data-knob]').forEach(initKnob);
+_hiddenCards.forEach(c => c.classList.add('hidden'));
 
 // ---- Toggle groups ----
 const GL_SECTIONS    = ['voronoi','cellular','ascii','shatter','erode','wave','oxide','synth','biolum','thermo','falsecolor'];
