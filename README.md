@@ -1,5 +1,82 @@
 # ARTKITv2
 
+A video art gallery — upload art videos, browse and watch them.
+
+---
+
+## How It Works (Big Picture)
+
+Think of it like YouTube, but just for this art community.
+
+```
+YOU (browser)
+    |
+    |  1. Open the website
+    v
+WEBSITE (frontend)
+    |
+    |  2. Want to upload a video?
+    v
+CLOUDINARY (video storage)
+    |
+    |  3. Video gets stored + compressed automatically
+    |  4. Cloudinary gives back a link to the video
+    v
+DATABASE (stores info about the video)
+    |  title, who uploaded it, the Cloudinary link, upload date
+    |
+    |  5. Someone visits the gallery
+    v
+WEBSITE (frontend)
+    |  fetches video list from database
+    |  plays videos directly from Cloudinary
+    v
+VIEWER (browser)
+```
+
+---
+
+## Where Does the Video Actually Live?
+
+**Cloudinary** — a service that stores and serves videos over the internet.
+
+- You upload once → they handle the rest
+- Videos are served from servers close to the viewer (fast loading)
+- Free tier: 25 GB storage, 25 GB monthly bandwidth
+- You never need to manage a server for video storage
+
+The **database** only stores *information about* the video (title, link, uploader) — not the video file itself.
+
+---
+
+## Data Flow Step by Step
+
+| Step | What happens | Where |
+|------|-------------|-------|
+| 1 | User picks a video file | Browser |
+| 2 | App sends file to Cloudinary | Browser → Cloudinary |
+| 3 | Cloudinary stores & compresses it | Cloudinary servers |
+| 4 | Cloudinary returns a URL | Cloudinary → App |
+| 5 | App saves title + URL + metadata | App → Database |
+| 6 | Gallery page loads video list | Database → App |
+| 7 | Videos stream to viewer | Cloudinary → Viewer |
+
+---
+
+## Components
+
+```
+ARTKITv2/
+├── frontend/        # What users see (website UI)
+├── backend/         # Server that talks to database
+└── README.md        # This file
+```
+
+- **Frontend** — the gallery website (buttons, video player, upload form)
+- **Backend** — handles logins, saves video info, talks to the database
+- **Cloudinary** — external service that stores and streams videos
+- **Database** — stores video titles, links, user info
+
 ---
 
 ## How to Run This Project (No coding experience needed!)
