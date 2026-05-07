@@ -164,6 +164,32 @@ html, body {
   gap: 8px;
 }
 
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 24px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+
+.color-label {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;

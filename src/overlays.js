@@ -2,10 +2,12 @@
  * Canvas overlay drawing: bounding boxes, labels, handles, connection lines.
  */
 
-const STROKE_COLOR = 'rgba(255,255,255,0.95)';
-const STROKE_WIDTH = 1;
-const NUM_FONT = '11px SF Mono, Fira Code, monospace';
-const LABEL_FONT = '11px SF Mono, Fira Code, monospace';
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 /**
  * Draw all overlays for one frame.
@@ -15,29 +17,38 @@ const LABEL_FONT = '11px SF Mono, Fira Code, monospace';
  * @param {'rect'|'circle'|'rounded'|'diamond'} shape
  * @param {number} connectionRate  0-1
  */
-export function drawOverlays(ctx, blobs, regionStyle, shape, connectionRate) {
-  if (blobs.length === 0) return;
-
-  // Draw connection lines first (behind boxes)
-  drawConnectionLines(ctx, blobs, connectionRate);
-
-  // Draw bounding shapes + decorations
-  for (const blob of blobs) {
-    drawBlobShape(ctx, blob, regionStyle, shape);
+export function drawOverlays(ctx, blobs, regionStyle, shape, connectionRate, strokeWidth, blobSize, fontSize, overlayColor) {
+  if (blobs.length === 0 || blobSize === 0) return;
+  const scale = blobSize / 64;
+  // Scale each blob's drawn box around its center
+  const scaledBlobs = blobs.map(b => {
+    const cx = b.x + b.w / 2;
+    const cy = b.y + b.h / 2;
+    const sw = b.w * scale;
+    const sh = b.h * scale;
+    return { ...b, x: cx - sw / 2, y: cy - sh / 2, w: sw, h: sh };
+  });
+  drawConnectionLines(ctx, scaledBlobs, connectionRate, strokeWidth, overlayColor);
+  for (const blob of scaledBlobs) {
+    drawBlobShape(ctx, blob, regionStyle, shape, strokeWidth, fontSize, overlayColor);
   }
 }
 
 // ---- Connection lines ----
 
-function drawConnectionLines(ctx, blobs, connectionRate) {
-  if (connectionRate <= 0 || blobs.length < 2) return;
+function drawConnectionLines(ctx, blobs, connectionRate, strokeWidth, overlayColor) {
+  if (connectionRate <= 0 || blobs.length < 2 || strokeWidth <= 0) return;
 
   // Generate all pairs sorted by distance
   const pairs = [];
   for (let i = 0; i < blobs.length; i++) {
     for (let j = i + 1; j < blobs.length; j++) {
-      const dx = blobs[i].cx - blobs[j].cx;
-      const dy = blobs[i].cy - blobs[j].cy;
+      const ax = blobs[i].x + blobs[i].w / 2;
+      const ay = blobs[i].y + blobs[i].h / 2;
+      const bx = blobs[j].x + blobs[j].w / 2;
+      const by = blobs[j].y + blobs[j].h / 2;
+      const dx = ax - bx;
+      const dy = ay - by;
       pairs.push({ i, j, dist: Math.sqrt(dx * dx + dy * dy) });
     }
   }
@@ -46,14 +57,14 @@ function drawConnectionLines(ctx, blobs, connectionRate) {
   const drawCount = Math.round(pairs.length * connectionRate);
 
   ctx.save();
-  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-  ctx.lineWidth = 0.8;
+  ctx.strokeStyle = hexToRgba(overlayColor, 0.6);
+  ctx.lineWidth = strokeWidth * 0.8;
 
   for (let p = 0; p < drawCount; p++) {
     const { i, j } = pairs[p];
     ctx.beginPath();
-    ctx.moveTo(blobs[i].cx, blobs[i].cy);
-    ctx.lineTo(blobs[j].cx, blobs[j].cy);
+    ctx.moveTo(blobs[i].x + blobs[i].w / 2, blobs[i].y + blobs[i].h / 2);
+    ctx.lineTo(blobs[j].x + blobs[j].w / 2, blobs[j].y + blobs[j].h / 2);
     ctx.stroke();
   }
 
@@ -62,12 +73,13 @@ function drawConnectionLines(ctx, blobs, connectionRate) {
 
 // ---- Blob shape drawing ----
 
-function drawBlobShape(ctx, blob, regionStyle, shape) {
+function drawBlobShape(ctx, blob, regionStyle, shape, strokeWidth, fontSize, overlayColor) {
+  if (strokeWidth <= 0) return;
   const { x, y, w, h, cx, cy, score, index } = blob;
 
   ctx.save();
-  ctx.strokeStyle = STROKE_COLOR;
-  ctx.lineWidth = STROKE_WIDTH;
+  ctx.strokeStyle = hexToRgba(overlayColor, 0.95);
+  ctx.lineWidth = strokeWidth;
 
   // Draw the shape outline
   switch (shape) {
@@ -87,13 +99,12 @@ function drawBlobShape(ctx, blob, regionStyle, shape) {
       drawRect(ctx, x, y, w, h);
   }
 
-  // Region-style decorations
   if (regionStyle === 'basic') {
-    drawBasicDecorations(ctx, blob);
+    drawBasicDecorations(ctx, blob, fontSize);
   } else if (regionStyle === 'label') {
-    drawLabelDecorations(ctx, blob);
+    drawLabelDecorations(ctx, blob, fontSize);
   } else if (regionStyle === 'frame') {
-    drawFrameDecorations(ctx, blob);
+    drawFrameDecorations(ctx, blob, fontSize);
   }
 
   ctx.restore();
@@ -143,33 +154,30 @@ function drawDiamond(ctx, cx, cy, w, h) {
 
 // ---- Decoration helpers ----
 
-function drawBasicDecorations(ctx, { x, y, score }) {
-  // Score number at top-left corner of bounding box
-  ctx.fillStyle = STROKE_COLOR;
-  ctx.font = NUM_FONT;
+function drawBasicDecorations(ctx, { x, y, score }, fontSize) {
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.font = `${fontSize}px SF Mono, Fira Code, monospace`;
   ctx.textBaseline = 'bottom';
   ctx.fillText(score.toFixed(4), x + 2, y - 2);
 }
 
-function drawLabelDecorations(ctx, { x, y, w, score, index }) {
+function drawLabelDecorations(ctx, { x, y, w, score, index }, fontSize) {
   const label = `Object ${index + 1}`;
-  ctx.font = LABEL_FONT;
+  ctx.font = `${fontSize}px SF Mono, Fira Code, monospace`;
   ctx.textBaseline = 'top';
   const metrics = ctx.measureText(label);
   const padX = 4, padY = 2;
+  const rectH = fontSize + padY * 2;
   const rectW = metrics.width + padX * 2;
-  const rectH = 14;
 
-  // White filled tab
-  ctx.fillStyle = STROKE_COLOR;
+  ctx.fillStyle = ctx.strokeStyle;
   ctx.fillRect(x, y - rectH, rectW, rectH);
-
-  // Black text
+  // Invert for label text so it's always readable against the tab
   ctx.fillStyle = '#000000';
   ctx.fillText(label, x + padX, y - rectH + padY);
 }
 
-function drawFrameDecorations(ctx, { x, y, w, h, score }) {
+function drawFrameDecorations(ctx, { x, y, w, h, score }, fontSize) {
   // 8 handle squares: 5x5 white filled
   const hs = 5;
   const hHalf = hs / 2;
@@ -184,13 +192,12 @@ function drawFrameDecorations(ctx, { x, y, w, h, score }) {
     [x + w, y + h / 2],
   ];
 
-  ctx.fillStyle = STROKE_COLOR;
+  ctx.fillStyle = ctx.strokeStyle;
   for (const [hx, hy] of handles) {
     ctx.fillRect(hx - hHalf, hy - hHalf, hs, hs);
   }
 
-  // Score number
-  ctx.font = NUM_FONT;
+  ctx.font = `${fontSize}px SF Mono, Fira Code, monospace`;
   ctx.textBaseline = 'bottom';
   ctx.fillText(score.toFixed(4), x + 2, y - 2);
 }

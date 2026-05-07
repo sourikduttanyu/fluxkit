@@ -13,6 +13,10 @@ const state = {
   threshold: 15,
   maxBlobs: 12,
   updateInterval: 1,
+  strokeWidth: 1,
+  blobSize: 64,
+  fontSize: 11,
+  overlayColor: '#ffffff',
   hasSource: false,
 };
 
@@ -65,6 +69,16 @@ wireSlider('connection-rate',  'connection-rate-val',  'connectionRate',  parseF
 wireSlider('sensitivity',      'sensitivity-val',      'threshold',       parseFloat);
 wireSlider('max-blobs',        'max-blobs-val',        'maxBlobs',        parseInt);
 wireSlider('update-interval',  'update-interval-val',  'updateInterval',  parseInt);
+wireSlider('stroke-width',     'stroke-width-val',     'strokeWidth',     parseFloat);
+wireToggleGroup('blob-size-group', 'blobSize', (v) => { state.blobSize = parseInt(v); });
+wireSlider('font-size', 'font-size-val', 'fontSize', parseInt);
+
+const colorPicker = document.getElementById('overlay-color');
+const colorLabel  = document.getElementById('overlay-color-val');
+colorPicker.addEventListener('input', () => {
+  state.overlayColor = colorPicker.value;
+  colorLabel.textContent = colorPicker.value;
+});
 
 // ---- File upload ----
 document.getElementById('btn-upload').addEventListener('click', () => fileInput.click());
@@ -198,7 +212,7 @@ function renderFrame() {
   }
 
   // Draw overlays on top of everything
-  drawOverlays(ctx, blobs, state.regionStyle, state.shape, state.connectionRate);
+  drawOverlays(ctx, blobs, state.regionStyle, state.shape, state.connectionRate, state.strokeWidth, state.blobSize, state.fontSize, state.overlayColor);
 }
 
 canvas.width  = canvasArea.clientWidth;

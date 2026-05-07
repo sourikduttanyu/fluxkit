@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BabyTrack — ARTKIT</title>
+    <title>FluxKit — ARTKIT</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -16,7 +16,7 @@
       <aside id="sidebar">
         <div class="sidebar-header">
           <span class="logo">ARTKIT</span>
-          <span class="logo-sub">BabyTrack</span>
+          <span class="logo-sub">FluxKit</span>
         </div>
 
         <!-- Input -->
@@ -105,6 +105,45 @@
           <div class="slider-row">
             <input type="range" id="update-interval" min="1" max="30" step="1" value="1" />
             <span class="slider-val" id="update-interval-val">1</span>
+          </div>
+        </section>
+
+        <!-- Stroke Width -->
+        <section class="control-section">
+          <div class="section-label">Stroke Width</div>
+          <div class="slider-row">
+            <input type="range" id="stroke-width" min="0" max="4" step="0.5" value="1" />
+            <span class="slider-val" id="stroke-width-val">1</span>
+          </div>
+        </section>
+
+        <!-- Overlay Color -->
+        <section class="control-section">
+          <div class="section-label">Overlay Color</div>
+          <div class="color-row">
+            <input type="color" id="overlay-color" value="#ffffff" />
+            <span class="color-label" id="overlay-color-val">#ffffff</span>
+          </div>
+        </section>
+
+        <!-- Font Size -->
+        <section class="control-section">
+          <div class="section-label">Font Size</div>
+          <div class="slider-row">
+            <input type="range" id="font-size" min="8" max="32" step="1" value="11" />
+            <span class="slider-val" id="font-size-val">11</span>
+          </div>
+        </section>
+
+        <!-- Blob Size -->
+        <section class="control-section">
+          <div class="section-label">Blob Size</div>
+          <div class="toggle-group" id="blob-size-group">
+            <button class="toggle-btn" data-value="0">0</button>
+            <button class="toggle-btn" data-value="32">32</button>
+            <button class="toggle-btn active" data-value="64">64</button>
+            <button class="toggle-btn" data-value="128">128</button>
+            <button class="toggle-btn" data-value="256">256</button>
           </div>
         </section>
 
