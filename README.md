@@ -60,7 +60,8 @@ FluxKit/
 │   ├── ascii.js        ← WebGL2 ASCII luma (single-pass)
 │   ├── glFilters.js    ← WebGL2 stateless filters (shatter, erode, oxide, synth, biolum, thermo, falsecolor)
 │   ├── wave.js         ← WebGL2 wave propagation (ping-pong FBOs, RGBA16F)
-│   ├── glUtil.js       ← shared WebGL2 helpers (allocate-once video texture upload)
+│   ├── glContext.js    ← shared WebGL2 context, canvas, video texture, and quad VAO across all effect modules
+│   ├── glUtil.js       ← allocate-once video texture upload helper
 │   └── style.css       ← all styling
 └── package.json
 ```
@@ -78,7 +79,7 @@ FluxKit/
 | Region Style | Basic (score) / Label (Object N) / Frame (handles) |
 | Filter | Effect to apply (see table above) |
 | Connection Rate | Fraction of inter-blob lines to draw |
-| Detect Mode | Motion (frame diff) · Luma (bright) · Dark (silhouettes) · Sat (vivid color) · Edge (Sobel boundaries) · Sharp (Laplacian detail). All except Motion keep detecting on paused frames. |
+| Detect Mode | Motion (frame diff) · Luma (bright) · Dark (silhouettes) · Sat (vivid color) · Edge (Sobel boundaries) · Sharp (Laplacian detail). When the video is paused, detection pauses too — but the last-known blobs stay on screen instead of disappearing. |
 | Sensitivity | Change threshold for motion / brightness cutoff |
 | Max Blobs | Cap on tracked blobs |
 | Update Interval | Detect every N frames |
@@ -89,6 +90,8 @@ FluxKit/
 | Overlay Color | Color of shapes and lines |
 
 Effect-specific sliders appear below Filter when an effect is selected.
+
+Hover any filter button or effect-card knob for ~350 ms — a description tooltip appears beside the cursor explaining what it does. Press `?` for the keyboard-shortcut help panel.
 
 ---
 

@@ -1,6 +1,6 @@
 # Implementation Status
 
-*Last updated: May 7, 2026. Captures the gap between this PRD (`v0.1 draft`, kept verbatim below) and the project as it actually exists today (`FluxKit`, branch `feat/blob-smoothing` at commit `9d5b1dc`).*
+*Last updated: May 8, 2026. Captures the gap between this PRD (`v0.1 draft`, kept verbatim below) and the project as it actually exists today (`FluxKit`, `main` at commit `4c9fa70`, plus uncommitted help-tooltip + dev-audit work).*
 
 The honest summary: **the project diverged hard from this PRD.** The PRD describes a luminance synthesizer whose centerpiece is a ramp editor (luma → RGB lookup) with a 3-pane mixing console and a stack-style FX rack. What got built is a real-time video instrument whose centerpiece is **blob detection + Kalman tracking + per-blob overlays**, with a single sidebar and a one-effect-at-a-time picker. Both products are valid; they are not the same product.
 
@@ -129,7 +129,7 @@ INPUT → STRUCTURE shader → 1-channel luma → FILTER (ramp lookup) → RGB �
 
 Reality: each effect is a **monolithic shader operating directly on the full RGB video frame**. There is no luma-only intermediate, no ramp lookup stage, no FX chain post-filter. The "FILTER" stage in FluxKit's UI is just a one-of-N effect picker; nothing about it is a color-mapping ramp.
 
-Consequence: the project will not become the PRD's product without a substantial pipeline rewrite. That rewrite is item **#10 (shared WebGL context)** + **#13 (ramp editor)** in the FUTURE WORK queue.
+Consequence: the project will not become the PRD's product without a substantial pipeline rewrite. The infrastructure half of that rewrite (a single shared WebGL2 context + canvas + video texture across all effect modules) is now done — see `src/glContext.js` under "Performance work" below. The semantic half (single-channel luma intermediate + ramp lookup) is not started; that's tracked as the **ramp editor** (§3.2) in the closing priority list.
 
 ### Effect taxonomy (§3.1, §6.2)
 - PRD CUT Crystal, Cellular, Wave, Voronoi Diff as "feedback shaders, bad UX in a drag-and-see-instantly app" (§6.2). FluxKit **built Cellular, Wave, Voronoi anyway**. They look great. The PRD was wrong about the UX cost.
@@ -156,9 +156,16 @@ Consequence: the project will not become the PRD's product without a substantial
 Things that exist in FluxKit that the PRD didn't call for:
 
 ### Detection + tracking (the actual core)
-- **Grid-based blob detector** with motion-mode (frame-diff) and luma-mode (brightness) (`blobDetector.js`)
+- **Grid-based blob detector** with **6 detection modes** (`blobDetector.js`):
+  - **Motion** — temporal frame-diff (default, the OG)
+  - **Luma** — bright-spot detection on grayscale
+  - **Dark** — silhouette detection (inverse luma)
+  - **Sat** — vivid-color detection (chroma = max(R,G,B) − min(R,G,B))
+  - **Edge** — Sobel 3×3 gradient magnitude
+  - **Sharp** — Laplacian magnitude (focus / detail)
+- **Pause-safe detection**: when the video is paused, motion mode would normally see zero frame-diff and cull every tracker. The render loop now skips detection + tracking entirely on `video.paused`, so cached blobs persist on the frozen frame. The five non-motion modes also keep working on paused frames (their strength field is single-frame).
 - **Kalman tracker** per blob: 1D filters on position + velocity + size, nearest-neighbor association, ID + age + missed-frame culling (`kalman.js`)
-- **OSC tuning knobs**: Sensitivity (threshold), Max Blobs, Update Interval, **Smooth** (per-render-frame EMA on tracked positions, just shipped on `feat/blob-smoothing`)
+- **OSC tuning knobs**: Sensitivity (threshold), Max Blobs, Update Interval, **Smooth** (per-render-frame EMA on tracked positions)
 
 ### Per-blob overlays
 - **Region Style** picker: Basic / Label / Frame
@@ -193,9 +200,18 @@ Things that exist in FluxKit that the PRD didn't call for:
 - `contain: layout style paint` on cards / toast / help-panel
 - `will-change: transform` on `.knob.dragging` (drag-only)
 - `ResizeObserver` instead of per-frame `clientWidth` reads
+- **Shared WebGL2 context** (`src/glContext.js`) — was 5 separate WebGL2 contexts (one per effect module: Voronoi, Cellular, ASCII, Wave, glFilters), each with its own canvas + video texture + fullscreen-quad VAO. Now a single shared context, canvas, video texture, and VAO. Per-effect modules still own their own programs and FBOs. Effect APIs unchanged. One known visual side-effect: ASCII switched from `NEAREST` to `LINEAR` texture filtering (the shared sampler is `LINEAR`); accepted as an improvement (less aliasing inside glyphs).
 
 ### Wheel-handler hardening
 - Knob wheel input now: 1 step per logical tick (matches `ArrowUp`), Shift+wheel = 10 steps (matches `PageUp`). Per-knob `deltaY` accumulator with `deltaMode` normalization stops trackpad runaway (was 30 events per swipe = knob slammed to min/max).
+
+### Inline help / discoverability
+- **Cursor-following description tooltips** on every filter button (14) and every effect-card knob/toggle (~46). Hover for 350ms, the tip appears beside the cursor and follows it; suppressed during knob drags so the value tooltip wins. Stored as `data-tip` attributes in `index.html`; resolved at runtime by walking up the DOM so a parent can describe a group of children at once (e.g. one tip on the swatch grid covers all 8 swatches).
+- **Convention guard**: a dev-mode startup audit (`import.meta.env.DEV`) walks `#filter-group .toggle-btn` and every `.effect-card .toggle-btn / .knob`, and warns in the console for any element missing a `data-tip` (or a `[data-tip]` ancestor). Stops future filter cards from shipping with no inline help.
+
+### Bug fixes worth noting in a PRD diff
+- **Blob Size + Shape now couple to the per-blob CPU filter region.** Previously the visual outline scaled with `state.blobSize` and clipped to the chosen shape (circle / diamond / rounded), but the `Inv` / `Thermal` filter painted a raw bounding rectangle at the unscaled detection size. `applyFilterToSubregion` now takes a `shape` parameter and clips per row, so what you see is what gets filtered.
+- **`src/lumisynth.js` deleted.** It was a ~140-line standalone effect that was never wired into the pipeline. Removed instead of integrated to keep the surface area honest.
 
 ---
 
@@ -203,13 +219,14 @@ Things that exist in FluxKit that the PRD didn't call for:
 
 The original PRD (v0.1, kept verbatim) is now best read as **the product FluxKit might pivot back toward in a future major version**, not the project as built. The path to closing the gap, in priority order:
 
-1. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break."
-2. **Pipeline rewrite** to support single-channel luma → ramp → FX chain (§5.3). Required before any of the above can land cleanly.
-3. **MediaRecorder clip export** (§4.7) — the #1 use case for the VJ persona, currently stuck at PNG-only.
+1. **Pipeline rewrite — semantic half** (§5.3): single-channel luma intermediate flowing between OSC and FILTER. The infrastructure half (one shared GL context across effects) is done; the meaning-of-the-signal half is not. Required before items 2 and 4 land cleanly.
+2. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break." Blocked on item 1.
+3. **MediaRecorder clip export** (§4.7) — the #1 use case for the VJ persona, currently stuck at PNG-only. Independent of items 1–2; could ship now.
 4. **FX rack** (§3.3) — once the pipeline supports chained passes.
 5. **Live shader thumbnails** (§4.4) — once the pipeline can run a shader on a test pattern off-screen.
 6. **Project JSON save/load** (§5.2) — small lift, makes the tool shareable.
 7. **Missing structure effects** (§3.1) — Halftone, Edge, Threshold, Pixelate are easy wins.
+8. **Color-blind safe overlay defaults** — audit the 8-swatch overlay palette against deuteranopia / protanopia simulations (commitment in `PRODUCT.md`, not yet verified).
 
 The team should also decide whether the PRD itself gets rewritten to match what FluxKit actually became (a video instrument with blob tracking as the core), or whether the spec stays as a future-state vision and FluxKit is acknowledged as a different product that grew alongside it.
 
