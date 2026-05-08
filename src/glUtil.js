@@ -12,6 +12,24 @@
  * dimensions; replacing the texture (e.g. via init() after a canvas resize)
  * automatically resets the cached dims when the old texture is GC'd.
  *
+ * Y-axis convention: the upload sets UNPACK_FLIP_Y_WEBGL=true so that
+ * video row 0 (the visual TOP of the source frame) lands at texture
+ * coordinate v=1 (the GL-convention TOP of the texture). Every effect's
+ * vertex shader uses `vUV = a_pos * 0.5 + 0.5`, which puts vUV=(0,0) at
+ * the bottom-left of the rendered quad. Without the flip, sampling
+ * u_video at vUV would read video-row-0 (top of source) at the bottom
+ * of the screen — i.e. the rendered frame would be upside-down. The
+ * effect was masked for voronoi/wave/cellular (their output patterns
+ * are orientation-agnostic — you can't tell a Voronoi diagram is
+ * flipped) but loud for ascii/shatter/erode (those preserve the
+ * video's structure, so the flip is visible).
+ *
+ * Setting it on EVERY upload (rather than once at boot) is intentional —
+ * UNPACK_FLIP_Y_WEBGL is a sticky GL state, but other code paths
+ * (third-party libs, future texture uploads of non-video data) might
+ * toggle it; redundantly asserting it here keeps the video-upload path
+ * self-contained and immune to outside-state regressions.
+ *
  * @returns {boolean} true if the upload happened, false if video isn't ready
  */
 const _texDims = new WeakMap();
@@ -20,6 +38,7 @@ export function uploadVideoTexture(gl, tex, video) {
   const w = video.videoWidth | 0;
   const h = video.videoHeight | 0;
   if (w === 0 || h === 0) return false;
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   const last = _texDims.get(tex);
   if (!last || last.w !== w || last.h !== h) {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
