@@ -1,3 +1,220 @@
+# Implementation Status
+
+*Last updated: May 7, 2026. Captures the gap between this PRD (`v0.1 draft`, kept verbatim below) and the project as it actually exists today (`FluxKit`, branch `feat/blob-smoothing` at commit `9d5b1dc`).*
+
+The honest summary: **the project diverged hard from this PRD.** The PRD describes a luminance synthesizer whose centerpiece is a ramp editor (luma → RGB lookup) with a 3-pane mixing console and a stack-style FX rack. What got built is a real-time video instrument whose centerpiece is **blob detection + Kalman tracking + per-blob overlays**, with a single sidebar and a one-effect-at-a-time picker. Both products are valid; they are not the same product.
+
+The taxonomy of changes:
+
+| Bucket | What it means |
+|---|---|
+| ✅ **Done** | Spec item built more or less as the PRD described |
+| ⚠️ **Partial** | Built but in a different shape than the PRD called for |
+| ❌ **Not started** | On the table; nothing built yet |
+| 🚫 **Deliberately not followed** | Decision logged in `PRD_DECISIONS.md` to do something else (or nothing) |
+| ➕ **Added not in PRD** | Built without the PRD asking for it |
+
+---
+
+## ✅ What's Built (matches PRD intent)
+
+| PRD ref | Spec | Status |
+|---|---|---|
+| §3.1 OSC sources | Video file (drag/drop mp4/mov/webm) | ✅ |
+| §3.1 OSC sources | Webcam (`getUserMedia`, no recording) | ✅ |
+| §3.1 Structure | Erosion + Dilation | ✅ (one effect with mode toggle) |
+| §3.1 Structure | Voronoi cells | ✅ |
+| §4.1 | Desktop-first single-window app | ✅ |
+| §4.2 | Deep purple-black background, Inter typography, pink-purple-indigo accents on knobs | ✅ (palette landed at OKLCH hue 310; see DESIGN.md) |
+| §4.3 | Knob component: vertical drag, Shift fine, double-click reset, hover tooltip with value, faint arc behind knob, label below in lavender uppercase | ✅ (one shared component, reused everywhere) |
+| §4.5 | Big preview window matching source aspect ratio, scrub bar (when video), FPS counter (toggleable) | ✅ |
+| §4.6 | Logo / project name on top bar (text only) | ✅ ("FluxKit") |
+| §4.7 | PNG export | ✅ (Snap button; one of the planned three formats) |
+| §5.1 | 100% in-browser, WebGL2, no server | ✅ |
+| §5.4 storage | localStorage autosave for last project | ✅ |
+| §9 | Name locked by Week 3 | ✅ ("FluxKit") |
+
+---
+
+## ⚠️ Partial (built but in a different shape)
+
+| PRD ref | Spec | Reality |
+|---|---|---|
+| §3.1 #4 | ASCII Luma as a single-channel luminance effect | ✅ ASCII shader exists, but operates on full RGB (the whole single-channel intermediate is missing, see Divergences) |
+| §4.2 | Glassmorphism translucent panels | ⚠️ Built and then explicitly removed by the Flat-By-Default Rule in DESIGN.md. Surfaces are now solid, tonally layered. |
+| §4.3 | 56px circular knob | ⚠️ Built at 40px. Same affordances. |
+| §4.3 | "Subtle glow on the active knob" | ⚠️ Built and then removed by the Flat-By-Default Rule (no ambient `box-shadow` on chrome at rest) |
+| §4.5 | "Play/pause button only visible on hover" | ⚠️ Visible video controls bar instead of hover-only |
+| §10 | "No mobile responsive" | ⚠️ Single 640px breakpoint exists; sidebar collapses to top stack on phone widths. Still desktop-first. |
+
+---
+
+## ❌ Not Started (still on the table)
+
+Grouped by PRD section, ordered by impact.
+
+### §3.1 Structure effects (10 of the 12 spec'd)
+- Halftone
+- 8-bit (posterize)
+- Edge detect
+- Threshold (hard cutoff)
+- Skeleton
+- Watershed
+- Pixelate
+- Dilation as a standalone effect (currently a mode toggle inside Erode)
+
+### §3.2 FILTER (the entire ramp editor)
+The PRD calls this "the make-or-break feature" (§3.2, §8 Week 3). None of it is built:
+- Interactive horizontal gradient strip
+- Click-to-add stops, drag to reposition, click for color picker, right-click to delete, double-click to auto-interpolate
+- Preset dropdown above the ramp
+- All 12 preset ramps: Nebula, Aurora, Event Horizon, Solar, Bioluminescence, Cyanotype, Tokamak, Mineral, Deep Field, Thermal, Mono, Inverted
+
+### §3.3 FX (the entire stack)
+The PRD calls for an Ableton-style FX rack. None of it is built:
+- Stack-style FX cards with drag-reorder and per-card toggle
+- Per-card live thumbnails
+- All 10 FX shaders: RGB Split, Feedback Warp, Echo / Trail, Mirror, Datamosh, Scanline, CRT, Vignette, Grain, Bloom
+
+### §4.1 Layout
+- 3-pane mixing console (left rail OSC 280px, center preview + ramp, right rail FX 280px). Currently a single 240px sidebar + canvas. Deferred per `PRD_DECISIONS.md` until an FX rack exists to fill a right rail.
+
+### §4.4 Live shader thumbnails
+- 32×32 live previews on the Structure picker that update as knobs change. Currently filter buttons are static gradient swatches that approximate each effect but do not reflect actual shader output or knob values.
+- Per-card live thumbnails on FX cards. N/A until FX cards exist.
+
+### §4.5 Preview framing
+- 16:9 / 9:16 / 1:1 framing crop toggle for export presets
+
+### §4.6 Top bar project file controls
+- New / Save (download `.json`) / Load (upload `.json`)
+
+### §4.7 Multi-format export modal
+- mp4 export (MediaRecorder)
+- GIF export
+- Resolution presets (1080×1920 Reels, 1920×1080 landscape, 1080×1080 square, match source)
+- The whole modal UI
+
+### §5.2 Project save/load as JSON
+- Currently `localStorage` only. Cannot share a patch with another machine or back up a session as a portable file.
+
+### §6 Effect totals
+- PRD plans 34 shader files (12 Structure + 12 Filter presets + 10 FX). Reality is around 14 effect modules covering mostly different effects than the spec list.
+
+### §7 Pricing, §8 Launch, §12 Success metrics
+- No pricing, no Stripe, no watermark, no landing page, no launch sequence, no metrics. FluxKit is currently positioned as a personal/portfolio tool per `PRODUCT.md`, not a business.
+
+---
+
+## 🚫 Deliberately Not Followed (logged divergences)
+
+These are spec items where the team picked a different path. Each is documented in `PRD_DECISIONS.md` as REJECTED or MODIFIED.
+
+### Stack (§5.4)
+| PRD locked-in | Reality | Why |
+|---|---|---|
+| Next.js 14 App Router | Vanilla Vite | Single-page in-browser instrument. SSR, routing, server components are zero-value here. |
+| TypeScript | Plain JS | One-person project. Type cost not justified at this scale. |
+| Tailwind CSS | Custom CSS with `--space-*` + `--bg-*` token system | Per DESIGN.md, fewer-but-named tokens beat utility-class soup for an instrument-style chrome. |
+| shadcn/ui | Hand-built component library (knobs, toggles, cards, toast, swatches) | shadcn's default look is the SaaS-dashboard cliché PRODUCT.md explicitly anti-references. |
+| Framer Motion | CSS transitions only | All motion is `cubic-bezier(0.25, 1, 0.5, 1)` opacity/transform. JS animation library is overkill. |
+| ogl (or three.js) | Raw WebGL2 | Total of ~1,500 lines of GL code. Library overhead would dwarf the savings. |
+
+### Pipeline (§5.3) — the biggest architectural divergence
+The PRD specifies a single linear pipeline with **single-channel luminance** flowing between OSC and FILTER:
+
+```
+INPUT → STRUCTURE shader → 1-channel luma → FILTER (ramp lookup) → RGB → FX chain → OUTPUT
+```
+
+Reality: each effect is a **monolithic shader operating directly on the full RGB video frame**. There is no luma-only intermediate, no ramp lookup stage, no FX chain post-filter. The "FILTER" stage in FluxKit's UI is just a one-of-N effect picker; nothing about it is a color-mapping ramp.
+
+Consequence: the project will not become the PRD's product without a substantial pipeline rewrite. That rewrite is item **#10 (shared WebGL context)** + **#13 (ramp editor)** in the FUTURE WORK queue.
+
+### Effect taxonomy (§3.1, §6.2)
+- PRD CUT Crystal, Cellular, Wave, Voronoi Diff as "feedback shaders, bad UX in a drag-and-see-instantly app" (§6.2). FluxKit **built Cellular, Wave, Voronoi anyway**. They look great. The PRD was wrong about the UX cost.
+- PRD said BlobTracking is "a separate product, don't ship in v1" (§6.2). FluxKit **made blob detection + Kalman tracking the core of the product**. The signal-flow now reads "video → blob field → per-blob colorize" rather than the PRD's "luminance → ramp → FX." This is the identity shift.
+
+### Visual chrome (§4.2)
+- PRD: glassmorphism, translucent purple panels (`bg-purple-500/8`, `border-purple-300/25`).
+- Reality: explicitly rejected. The Flat-By-Default Rule in DESIGN.md bans `backdrop-filter: blur` on chrome at rest. Surfaces are tonally layered using the dim-studio ladder (`bg-stage` → `bg-room` → `surface-card` → `surface-raised` → `surface-hover`).
+- Decorative gradient text (`background-clip: text`) removed everywhere. Logo, card titles, headlines all solid color.
+- Ambient `box-shadow` glow removed from knob arcs, toggles, swatches, filter buttons. The single justified shadow is `--modal-lift` on the help panel.
+
+### Mobile (§10)
+- PRD: NO mobile / tablet / responsive layout for v1.
+- Reality: built one 640px breakpoint anyway (sidebar collapses to top stack, filter grid goes 4-col, knob grid goes 4-col). Still desktop-first; tablet sizes (768-1024) inherit desktop with the fixed sidebar eating real estate.
+
+### Pricing & launch (§7, §8)
+- PRD: 6-week build-in-public sprint with weekly reels, Stripe checkout, free-vs-paid tiers, watermark on free exports.
+- Reality: zero of this. FluxKit per `PRODUCT.md` is positioned as a tool for VJs / generative-art tinkerers / curious creators, not a paid product. No revenue model attached.
+
+---
+
+## ➕ Built but Not in PRD
+
+Things that exist in FluxKit that the PRD didn't call for:
+
+### Detection + tracking (the actual core)
+- **Grid-based blob detector** with motion-mode (frame-diff) and luma-mode (brightness) (`blobDetector.js`)
+- **Kalman tracker** per blob: 1D filters on position + velocity + size, nearest-neighbor association, ID + age + missed-frame culling (`kalman.js`)
+- **OSC tuning knobs**: Sensitivity (threshold), Max Blobs, Update Interval, **Smooth** (per-render-frame EMA on tracked positions, just shipped on `feat/blob-smoothing`)
+
+### Per-blob overlays
+- **Region Style** picker: Basic / Label / Frame
+- **Shape** picker: Rectangle / Circle / Rounded rect / Diamond
+- **Connection lines** between tracked blobs (`Connect` knob controls density)
+- **Stroke / Font** size knobs
+- **Blob Size** preset picker (0 / 32 / 64 / 128 / 256)
+- **Overlay color** swatch palette (8 swatches + custom picker), gated to "boxes & lines only"
+
+### Per-blob CPU filter
+- Inv and Thermal effects applied to blob bounding boxes only (vs full-frame). After the perf branch, this is one batched `getImageData` per frame instead of N round-trips.
+
+### Interaction patterns
+- **Two-stage Reset** (click once to arm, click again to confirm) — the canonical "destructive action without a modal" pattern in DESIGN.md
+- **Per-card reset buttons** (`×` in each effect-card header) to reset just that card's knobs
+- **Drag-and-drop video** loading with pink halo overlay
+- **Keyboard shortcuts**: `?` (help), `S` (snap), `F` (FPS), `Esc` (close), arrow keys + PgUp/Dn + Home/End on knobs
+
+### Design system (the meta-product)
+- **PRODUCT.md** — strategic register, users, brand personality, anti-references, design principles
+- **DESIGN.md** — visual system: dim-studio palette at OKLCH hue 310, Inter-only typography, flat-by-default elevation, named components, named rules (Pink-Is-Signal, Tinted-Neutral, Signal-Flow, Three-Pinks, Single-Family, Letter-Spacing-As-Weight, Flat-By-Default, Modal-Only Shadow, Canvas-Is-Loudest, One-Active-Per-Group, Knob-Is-The-Signature, No-Save, Spacing-Token, Stage-Owns-Staging)
+- **DESIGN.json** — machine-readable sidecar with OKLCH tonal ramps, component HTML/CSS snippets, narrative rules
+- **PRD_DECISIONS.md** — the audit log tracking divergences from this very PRD
+- **Stage-flow color coding** — OSC dividers in amber, FILTER in violet, FX in teal. Communicates signal-flow direction without words.
+- **State-info cyan** for informational status (modified-from-default knob dot), separate from `pink-signal` (active state) and `state-danger` (destructive confirm). Three pinks intentionally distinguishable.
+
+### Performance work
+- GPU-resident display canvas (was forcing software rendering)
+- `texSubImage2D` fast-path on all 5 WebGL effect modules (was reallocating texture every frame)
+- Batched per-blob CPU filter (was 12-30 GPU↔CPU round-trips per frame, now 1)
+- `<link rel=preconnect>` + `<link rel=stylesheet>` for fonts (was render-blocking `@import`)
+- `contain: layout style paint` on cards / toast / help-panel
+- `will-change: transform` on `.knob.dragging` (drag-only)
+- `ResizeObserver` instead of per-frame `clientWidth` reads
+
+### Wheel-handler hardening
+- Knob wheel input now: 1 step per logical tick (matches `ArrowUp`), Shift+wheel = 10 steps (matches `PageUp`). Per-knob `deltaY` accumulator with `deltaMode` normalization stops trackpad runaway (was 30 events per swipe = knob slammed to min/max).
+
+---
+
+## What this means for the PRD below
+
+The original PRD (v0.1, kept verbatim) is now best read as **the product FluxKit might pivot back toward in a future major version**, not the project as built. The path to closing the gap, in priority order:
+
+1. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break."
+2. **Pipeline rewrite** to support single-channel luma → ramp → FX chain (§5.3). Required before any of the above can land cleanly.
+3. **MediaRecorder clip export** (§4.7) — the #1 use case for the VJ persona, currently stuck at PNG-only.
+4. **FX rack** (§3.3) — once the pipeline supports chained passes.
+5. **Live shader thumbnails** (§4.4) — once the pipeline can run a shader on a test pattern off-screen.
+6. **Project JSON save/load** (§5.2) — small lift, makes the tool shareable.
+7. **Missing structure effects** (§3.1) — Halftone, Edge, Threshold, Pixelate are easy wins.
+
+The team should also decide whether the PRD itself gets rewritten to match what FluxKit actually became (a video instrument with blob tracking as the core), or whether the spec stays as a future-state vision and FluxKit is acknowledged as a different product that grew alongside it.
+
+---
+
 # PROJECT_NAME — Product Requirements Document
 *v0.1 · draft · for [friend's name] and [your name]*
 
