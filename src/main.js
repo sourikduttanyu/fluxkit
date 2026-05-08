@@ -750,17 +750,27 @@ function renderFrame() {
   if (offscreen.width !== ow || offscreen.height !== oh) {
     offscreen.width = ow; offscreen.height = oh;
   }
-  offCtx.drawImage(video, 0, 0, ow, oh);
-  const offImageData = offCtx.getImageData(0, 0, ow, oh);
+  // Detection/tracking only runs while the source is actually playing. When
+  // paused, motion-mode would see zero frame-diff and starve every tracker
+  // until they cull, making blobs vanish. Luma-mode would re-detect the same
+  // bright pixels every tick, churning IDs. Either way: pause should freeze
+  // detection. cachedBlobs is preserved from the last playing frame so the
+  // overlays + per-blob filter still render against the frozen video frame
+  // (and the user can keep tweaking shape / size / color knobs to see the
+  // effect on a still image).
+  if (!video.paused) {
+    offCtx.drawImage(video, 0, 0, ow, oh);
+    const offImageData = offCtx.getImageData(0, 0, ow, oh);
 
-  frameCount++;
-  if (frameCount % state.updateInterval === 0) {
-    const rawBlobs  = detectBlobs(offImageData, state.threshold, state.maxBlobs, state.detectMode);
-    const sx = cw / ow, sy = ch / oh;
-    const scaledRaw = rawBlobs.map(b => ({
-      ...b, x: b.x*sx, y: b.y*sy, w: b.w*sx, h: b.h*sy, cx: b.cx*sx, cy: b.cy*sy,
-    }));
-    cachedBlobs = trackBlobs(scaledRaw, cw, state.maxBlobs);
+    frameCount++;
+    if (frameCount % state.updateInterval === 0) {
+      const rawBlobs  = detectBlobs(offImageData, state.threshold, state.maxBlobs, state.detectMode);
+      const sx = cw / ow, sy = ch / oh;
+      const scaledRaw = rawBlobs.map(b => ({
+        ...b, x: b.x*sx, y: b.y*sy, w: b.w*sx, h: b.h*sy, cx: b.cx*sx, cy: b.cy*sy,
+      }));
+      cachedBlobs = trackBlobs(scaledRaw, cw, state.maxBlobs);
+    }
   }
   const blobs = smoothBlobs(cachedBlobs);
 
