@@ -229,6 +229,45 @@ html, body {
 }
 #canvas-topbar .icon-btn:hover { background: oklch(12% 0.005 70); }
 
+/* Record button — Snap's neighbor in the topbar. Has a small dot
+   inside the label that pulses red while recording, plus the button
+   itself takes on a danger-red border so it reads as "armed" from
+   across the room. The label flips to the live elapsed-time string
+   ("0:14") while recording. */
+#btn-record {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+#btn-record .rec-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  transition: background var(--duration-base) var(--ease-out);
+}
+#btn-record.recording {
+  background: oklch(28% 0.10 25);
+  border-color: var(--state-danger);
+  color: oklch(94% 0.06 25);
+}
+#btn-record.recording .rec-dot {
+  background: var(--state-danger);
+  /* Pulse only when motion isn't reduced — heart-beat effect for the
+     "live indicator" affordance, but never inflict it on people who
+     opted out of motion. */
+  animation: rec-pulse 1.2s ease-in-out infinite;
+}
+#btn-record.recording:hover { background: oklch(34% 0.11 25); }
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.8); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #btn-record.recording .rec-dot { animation: none; }
+}
+
 /* ============================================================
    STAGE DIVIDERS — signal-flow color coding (warm → cool).
    Label tints by stage (LOW chroma so it never competes with orange);

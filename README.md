@@ -105,7 +105,7 @@ FluxKit/
 | Shape | rect / circle / rounded / diamond bounding boxes |
 | Region Style | Basic (score) / Label (Object N) / Frame (handles) |
 | STRUCTURE | Pick one geometry / pattern effect, or None (see table above) |
-| COLOR rack | 3 slots stacked vertically. Click a slot's chip to open the picker (None + 5 colors). Toggle pill (✓ / ⊘) enables / disables a slot without losing the pick. × clears a slot back to empty. Drag the handle (≡) to reorder. Slots run in series. |
+| COLOR rack | 3 slots stacked vertically. Click a slot's chip to open the picker (None + 5 colors). Toggle pill (✓ / ⊘) enables / disables a slot without losing the pick. × clears a slot back to empty. Drag the handle (≡) to reorder. Slots run in series. **Each slot has its own copy of its effect's knobs** — click the chevron (▾) on a filled slot to expand an inline knob panel underneath, with `⟲` to reset only that slot to factory. Two synth slots can have independent settings. |
 | PER-BLOB | Pick one per-blob overlay (Inv / Thermal), or None |
 | Connection Rate | Fraction of inter-blob lines to draw |
 | Detect Mode | Motion (frame diff) · Luma (bright) · Dark (silhouettes) · Sat (vivid color) · Edge (Sobel boundaries) · Sharp (Laplacian detail). When the video is paused, detection pauses too — but the last-known blobs stay on screen instead of disappearing. |
@@ -118,9 +118,18 @@ FluxKit/
 | Font Size | Label text size |
 | Overlay Color | Color of shapes and lines |
 
-Effect-specific sliders appear in a card below STRUCTURE / COLOR / PER-BLOB when an effect is selected.
+Effect-specific sliders appear in a card below STRUCTURE / PER-BLOB when an effect is selected. COLOR knobs render *inline inside their rack slot* (per-slot params) — expand a slot to see them.
 
 Hover any filter button or effect-card knob for ~350 ms — a description tooltip appears beside the cursor explaining what it does. Press `?` for the keyboard-shortcut help panel.
+
+### Output
+
+| Action | Shortcut | Format |
+|--------|----------|--------|
+| `Snap` — save current frame | `S` | PNG |
+| `Rec` — toggle clip recording | `R` | MP4 (or WebM/VP9 fallback) |
+
+`Rec` records exactly the pixels you see on the canvas (raw video + STRUCTURE → COLOR chain output + per-blob CPU pass + overlays). The button shows live elapsed time while recording with a pulsing red dot. Audio is not included — clips are video-only by design. Files download as `fluxkit-<timestamp>.<ext>` to your default downloads folder. Switching the source mid-recording auto-finalizes the clip.
 
 ---
 

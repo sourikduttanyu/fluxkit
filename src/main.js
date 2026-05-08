@@ -177,6 +177,8 @@ const fileStatus   = document.getElementById('file-status');
 const topbarSource = document.getElementById('topbar-source');
 const toastRegion  = document.getElementById('toast-region');
 const btnSnapshot  = document.getElementById('btn-snapshot');
+const btnRecord    = document.getElementById('btn-record');
+const btnRecordLbl = document.getElementById('btn-record-label');
 const btnReset     = document.getElementById('btn-reset');
 const btnFps       = document.getElementById('btn-fps');
 const btnHelp      = document.getElementById('btn-help');
@@ -1309,6 +1311,193 @@ function takeSnapshot() {
 }
 btnSnapshot.addEventListener('click', takeSnapshot);
 
+// ---- Clip recording (MediaRecorder against canvas.captureStream) ----
+//
+// Records the display canvas — same pixels the user sees, including
+// raw video, all GL chain output, per-blob CPU pass, and overlays.
+// `captureStream(60)` requests up to 60 frames/sec from the canvas;
+// the actual rate is whatever our render loop produces (capped at 60
+// by the FPS_CAP code), so the recording's cadence matches what's
+// on screen — no surprises with stuttery playback or doubled frames.
+//
+// MIME negotiation: try mp4 → webm/vp9 → webm/vp8. mp4 plays natively
+// on every modern OS / device; webm is the fallback for browsers that
+// can't encode it (Safari historically). The user gets a single click
+// → file in their downloads folder, regardless of which codec we
+// landed on.
+//
+// No audio: the canvas stream is video-only by definition. Audio from
+// the source video file is intentionally NOT included — the artistic
+// content is the visuals; pulling audio in would also raise privacy
+// expectations for the camera path. v2 could opt-in.
+
+// Codec preference order. First isTypeSupported match wins. Each entry
+// pairs the MediaRecorder MIME string with the file extension users
+// expect — keeps downloads from getting saddled with `.bin` or wrong
+// extensions for OS-level video previews.
+const RECORDER_FORMATS = [
+  { mime: 'video/mp4;codecs=avc1.42E01E', ext: 'mp4' },
+  { mime: 'video/webm;codecs=vp9',        ext: 'webm' },
+  { mime: 'video/webm;codecs=vp8',        ext: 'webm' },
+  { mime: 'video/webm',                   ext: 'webm' },
+];
+
+// Module state for the active recording. _recorder is non-null only
+// while a recording is in progress; everything else gates off that.
+let _recorder       = null;
+let _recordChunks   = [];
+let _recordFormat   = null;
+let _recordStartT   = 0;
+let _recordTickRaf  = 0;
+
+function pickRecorderFormat() {
+  if (typeof MediaRecorder === 'undefined') return null;
+  for (const f of RECORDER_FORMATS) {
+    try { if (MediaRecorder.isTypeSupported(f.mime)) return f; } catch { /* keep going */ }
+  }
+  return null;
+}
+
+// Detect support once at boot — if MediaRecorder isn't available or
+// can't encode any of our preferred MIMEs (extremely rare today, but
+// possible on locked-down enterprise browsers), hide the button so
+// users never see a control they can't use.
+const _recorderSupported = !!pickRecorderFormat();
+if (!_recorderSupported && btnRecord) {
+  btnRecord.style.display = 'none';
+}
+
+function formatRecordTime(ms) {
+  const s = Math.floor(ms / 1000);
+  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+}
+
+function tickRecordLabel() {
+  if (!_recorder) return;
+  btnRecordLbl.textContent = formatRecordTime(performance.now() - _recordStartT);
+  // Re-schedule via RAF so the label updates piggyback on the render
+  // loop's existing cadence — no separate setInterval timer to manage
+  // or leak across recording sessions.
+  _recordTickRaf = requestAnimationFrame(tickRecordLabel);
+}
+
+function startRecording() {
+  if (!state.hasSource) {
+    showToast('Load a video or open the camera first', 'error');
+    return;
+  }
+  if (_recorder) return; // guard double-clicks
+  _recordFormat = pickRecorderFormat();
+  if (!_recordFormat) {
+    showToast('Recording not supported in this browser', 'error');
+    return;
+  }
+  // captureStream pulls frames from the canvas at the rate we draw to
+  // it (capped at FPS_CAP). The 60 here is a hint to the browser, not
+  // a guarantee — actual rate matches our render loop.
+  let stream;
+  try {
+    stream = canvas.captureStream(FPS_CAP);
+  } catch (err) {
+    showToast(`Couldn't capture canvas: ${err.message || err}`, 'error');
+    return;
+  }
+  try {
+    _recorder = new MediaRecorder(stream, { mimeType: _recordFormat.mime });
+  } catch (err) {
+    showToast(`Recorder init failed: ${err.message || err}`, 'error');
+    _recorder = null;
+    return;
+  }
+  _recordChunks = [];
+  _recorder.addEventListener('dataavailable', (e) => {
+    if (e.data && e.data.size > 0) _recordChunks.push(e.data);
+  });
+  _recorder.addEventListener('error', (e) => {
+    showToast(`Recording error: ${e.error?.message || 'unknown'}`, 'error');
+    teardownRecording();
+  });
+  _recorder.addEventListener('stop', () => {
+    finalizeRecording();
+  });
+  // Request a chunk every second so a long recording isn't held in
+  // a single giant blob — also means a browser crash mid-record loses
+  // at most one second of data via the dataavailable accumulation.
+  _recorder.start(1000);
+  _recordStartT = performance.now();
+  btnRecord.classList.add('recording');
+  btnRecord.setAttribute('aria-pressed', 'true');
+  btnRecord.title = 'Stop recording (click to save)';
+  btnRecordLbl.textContent = '0:00';
+  _recordTickRaf = requestAnimationFrame(tickRecordLabel);
+  showToast(`Recording started (${_recordFormat.ext.toUpperCase()})`, 'ok', 1800);
+}
+
+function stopRecording() {
+  if (!_recorder) return;
+  // Recorder.stop() flushes a final dataavailable then fires 'stop',
+  // which calls finalizeRecording. teardown happens there to keep the
+  // sequencing single-path.
+  try { _recorder.stop(); } catch { /* already stopped */ }
+}
+
+function finalizeRecording() {
+  const chunks = _recordChunks;
+  const fmt    = _recordFormat;
+  const durMs  = performance.now() - _recordStartT;
+  teardownRecording();
+
+  if (!chunks.length) {
+    showToast('Recording produced no data', 'error');
+    return;
+  }
+  const blob = new Blob(chunks, { type: fmt.mime.split(';')[0] });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const ts   = new Date().toISOString().replace(/[:.]/g, '-');
+  a.href = url;
+  a.download = `fluxkit-${ts}.${fmt.ext}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+  const sizeMb = (blob.size / (1024 * 1024)).toFixed(1);
+  showToast(`Saved ${formatRecordTime(durMs)} clip · ${sizeMb} MB`, 'ok', 3500);
+}
+
+function teardownRecording() {
+  if (_recordTickRaf) {
+    cancelAnimationFrame(_recordTickRaf);
+    _recordTickRaf = 0;
+  }
+  _recorder = null;
+  _recordChunks = [];
+  btnRecord.classList.remove('recording');
+  btnRecord.setAttribute('aria-pressed', 'false');
+  btnRecord.title = 'Record canvas as a video clip (click again to stop)';
+  btnRecordLbl.textContent = 'Rec';
+}
+
+if (btnRecord) {
+  btnRecord.addEventListener('click', () => {
+    if (_recorder) stopRecording();
+    else           startRecording();
+  });
+}
+
+// Auto-stop if the user yanks the source mid-recording (e.g. switches
+// from camera to video file). The captureStream keeps "running" but
+// produces black frames once the canvas isn't being redrawn, which
+// would be a confusing artifact in the saved clip. Better to finalize
+// what they've already captured.
+function handleSourceChangeForRecording() {
+  if (_recorder) {
+    showToast('Source changed — finalizing recording', 'info', 2000);
+    stopRecording();
+  }
+}
+
 // ---- Help panel ----
 function openHelp()  { helpOverlay.classList.remove('hidden'); helpClose.focus(); }
 function closeHelp() { helpOverlay.classList.add('hidden'); }
@@ -1356,6 +1545,12 @@ document.addEventListener('keydown', (e) => {
   }
   if ((e.key === 'f' || e.key === 'F') && !document.activeElement?.classList?.contains('knob')) {
     btnFps.click(); e.preventDefault();
+  }
+  if ((e.key === 'r' || e.key === 'R') && !document.activeElement?.classList?.contains('knob')) {
+    if (btnRecord && !btnRecord.disabled && btnRecord.style.display !== 'none') {
+      btnRecord.click();
+      e.preventDefault();
+    }
   }
 });
 
@@ -1408,9 +1603,14 @@ function updateSourceLabel(text) {
 }
 
 function setHasSource(val, label) {
+  // If a recording is active and the source changes (or goes away),
+  // finalize it. Otherwise the saved clip would tail off into black
+  // frames once the canvas stops being updated.
+  handleSourceChangeForRecording();
   state.hasSource = val;
   placeholder.style.display = val ? 'none' : 'flex';
   btnSnapshot.disabled = !val;
+  if (btnRecord) btnRecord.disabled = !val;
   if (val) {
     const dims = (video.videoWidth && video.videoHeight)
       ? ` · ${video.videoWidth}×${video.videoHeight}` : '';
@@ -1889,3 +2089,4 @@ applyStateToUI();
 canvas.width  = canvasArea.clientWidth;
 canvas.height = canvasArea.clientHeight;
 btnSnapshot.disabled = !state.hasSource;
+if (btnRecord) btnRecord.disabled = !state.hasSource;

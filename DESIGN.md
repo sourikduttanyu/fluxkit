@@ -353,12 +353,33 @@ The picker buttons used by **STRUCTURE** and **PER-BLOB** (the two stages that p
 
 The COLOR stage is a 0–3 slot rack rendered into `#color-rack`, not a swatch grid. Three fixed slots stack vertically; each slot holds one of the 5 colors or is empty / disabled. Slots run in series — slot 0 → slot 1 → slot 2 — and can be dragged to reorder. The rack is the canonical pattern for any future stage that needs ordered, toggleable, drag-reorderable composition (the FX RACK in P3 will follow the same pattern).
 
-A slot is a 4-cell grid: **handle · chip · toggle · remove**. The handle is the only drag affordance; clicking the chip opens the picker popover; the toggle pauses a slot without losing its pick; the × clears the slot back to empty (rack length is fixed at 3).
+A slot is a 2-row flex column. Row 1 is a 5-cell grid: **handle · chip · chevron · toggle · remove**. Row 2 is the *inline knob panel* — only present when the slot is expanded, and only on filled slots. The handle is the only drag affordance; clicking the chip opens the picker popover; the chevron expands/collapses the knob panel; the toggle pauses a slot without losing its pick; the × clears the slot back to empty (rack length is fixed at 3).
 
-- **Slot shape:** rounded 6px (`{rounded.xl}`), `background: Bg Stage`, `border: 1px Border Hairline`, min-height 36px, padding `{spacing.xs}`.
-- **Empty slot:** dashed border, only handle + "+ add color" placeholder chip (no toggle / remove since there's nothing to disable or clear).
+- **Slot shape:** rounded 6px (`{rounded.xl}`), `background: Bg Stage`, `border: 1px Border Hairline`, min-height 36px.
+- **Empty slot:** dashed border, only handle + "+ add color" placeholder chip (no chevron / toggle / remove since there's nothing to expand, disable, or clear).
 - **Disabled slot (filled but ⊘):** chip label and chip swatch dim to opacity 0.45; slot border stays solid (the slot is filled in the rack — just paused).
+- **Expanded slot (`data-expanded="true"`):** border lifts to `Border Strong` so the user can see which slot owns the panel beneath it (matters when 2+ slots are expanded simultaneously). The expanded state is per-session — never persisted; reload collapses everything.
 - **Drag-in-progress slot:** opacity 0.4, cursor `grabbing`. Drop target slot draws a 2px `Orange Signal` top border via `::before` showing the insertion point — sits inside the slot's own 1px hairline so it doesn't reflow.
+
+#### Color Rack Chevron (`.color-rack-chevron`) — expand the inline knob panel
+
+Small icon-button (`▾` collapsed, `▴` expanded) between the chip and the on/off toggle. Filled slots only. Reuses the transparent-icon-button language of the drag handle so the row reads as one cohesive control strip rather than five independent affordances.
+
+- **Inactive:** `Text Muted`, transparent background.
+- **Hover:** `Text Key`, background `Surface Hover`.
+- **Expanded (`aria-expanded="true"`):** `Orange Signal` glyph (consistent with the orange-is-being-touched signal — same logic that lights up the on/off toggle when the slot is enabled).
+
+#### Color Rack Slot Panel (`.color-rack-slot-panel`) — inline per-slot knobs
+
+The expanded panel beneath a slot. Hosts that slot's knobs (and any toggles, e.g. FalseClr's Banding) bound to **slot.params**, not global state — every slot has its own copy. Two synth slots can have different Warmth, Resonance, Sep, and Dyn-Range values without leaking into each other.
+
+- **Layout:** flex column. Top hairline divider separates the panel from the row above.
+- **Padding:** `{spacing.sm} {spacing.xs} {spacing.xs}`. Tighter than the right-panel effect-cards because the sidebar is 240px wide and these panels stack 1–3 deep.
+- **Header (`.color-rack-slot-panel-head`):** 9px uppercase `Text Muted` title (`SYNTH KNOBS`) + a `⟲` reset button on the right that restores **only this slot** to factory defaults.
+- **Knob grid (`.color-rack-slot-knob-grid`):** 2-column grid of slot-bound knobs. Same SVG knob component as the right-panel cards (`.knob`), just with the `slot-knob` modifier and writes routed to `slot.params[k]` via `initKnob`'s `writeValue` callback. Identical drag / wheel / keyboard / dblclick-reset behavior.
+- **Inline toggle row (`.color-rack-slot-toggle`):** for non-knob params (FalseClr Banding On/Off). Compact label-plus-button-pair on a single row, slot-bound to `slot.params[t.key]`.
+
+> **Pattern note (slot-as-module).** The knobs physically belong to the slot they control. There is no "selected slot" mode, no remote panel — drag a slot to reorder, the knobs come with it; disable a slot, its knobs dim with it. This is the dominant pattern in the music/modular tools tradition (Ableton Drum Rack chains, Reason racks, VCV Rack modules, TouchDesigner nodes). The asymmetry between stackable stages (COLOR with inline modules) and single-select stages (STRUCTURE / PER-BLOB with right-panel cards) is deliberate — it's a visual signal of "this stage is stackable, this one isn't." When FX RACK becomes stackable in P3 it should adopt the same pattern.
 
 #### Color Rack Chip (`.color-rack-chip`) — the body of a slot
 

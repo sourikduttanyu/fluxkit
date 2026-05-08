@@ -29,7 +29,7 @@ The taxonomy of changes:
 | §4.3 | Knob component: vertical drag, Shift fine, double-click reset, hover tooltip with value, faint arc behind knob, label below in lavender uppercase | ✅ (one shared component, reused everywhere) |
 | §4.5 | Big preview window matching source aspect ratio, scrub bar (when video), FPS counter (toggleable) | ✅ |
 | §4.6 | Logo / project name on top bar (text only) | ✅ ("FluxKit") |
-| §4.7 | PNG export | ✅ (Snap button; one of the planned three formats) |
+| §4.7 | PNG export + clip recording | ✅ Snap (PNG) + Rec (MediaRecorder → mp4 / webm); GIF still missing |
 | §5.1 | 100% in-browser, WebGL2, no server | ✅ |
 | §5.4 storage | localStorage autosave for last project | ✅ |
 | §9 | Name locked by Week 3 | ✅ ("FluxKit") |
@@ -90,10 +90,10 @@ The PRD calls for an Ableton-style FX rack. None of it is built:
 - New / Save (download `.json`) / Load (upload `.json`)
 
 ### §4.7 Multi-format export modal
-- mp4 export (MediaRecorder)
-- GIF export
-- Resolution presets (1080×1920 Reels, 1920×1080 landscape, 1080×1080 square, match source)
-- The whole modal UI
+- ~~mp4 export (MediaRecorder)~~ ✅ Shipped — `Rec` button records the canvas as `.mp4` (or `.webm` fallback) via MediaRecorder
+- GIF export — still missing
+- Resolution presets (1080×1920 Reels, 1920×1080 landscape, 1080×1080 square, match source) — still missing
+- The whole modal UI — still missing (Rec is a single-click toggle, not a modal)
 
 ### §5.2 Project save/load as JSON
 - Currently `localStorage` only. Cannot share a patch with another machine or back up a session as a portable file.
@@ -195,8 +195,20 @@ Things that exist in FluxKit that the PRD didn't call for:
 ### Interaction patterns
 - **Two-stage Reset** (click once to arm, click again to confirm) — the canonical "destructive action without a modal" pattern in DESIGN.md
 - **Per-card reset buttons** (`×` in each effect-card header) to reset just that card's knobs
+- **Per-slot reset** (`⟲` in each expanded color rack slot's panel header) to reset only that slot's knobs to factory
 - **Drag-and-drop video** loading with pink halo overlay
-- **Keyboard shortcuts**: `?` (help), `S` (snap), `F` (FPS), `Esc` (close), arrow keys + PgUp/Dn + Home/End on knobs
+- **Keyboard shortcuts**: `?` (help), `S` (snap), `R` (toggle clip recording), `F` (FPS), `Esc` (close), arrow keys + PgUp/Dn + Home/End on knobs
+
+### Color rack architecture (slot-as-module)
+- COLOR is a **0–3 slot rack** chained in series (`9b775d7`). Slots can be empty / disabled / hold one of 5 colors; same color may appear in multiple slots (compounding).
+- **Per-slot params**: each slot owns its own copy of its effect's knobs, so two synth slots can have independent Warmth / Resonance / Sep / Dyn-Range. `state.colorRack[i].params` is a flat key→value object keyed by short param names; `COLOR_PARAM_SCHEMAS` in `src/main.js` is the source of truth for what knobs/toggles each color exposes.
+- **Inline knobs**: knobs render *inside* the slot when expanded (chevron toggle), bound to `slot.params` via `initKnob`'s new `writeValue` callback. No remote panel, no "selected slot" mode — the knobs physically belong to the slot they control. Right-panel COLOR cards were deleted; STRUCTURE / PER-BLOB cards stay (they're single-select stages, no per-slot semantics needed). The asymmetry between stackable stages (inline modules) and single-select stages (right-panel cards) is a deliberate visual signal.
+- **Drag-to-reorder, on/off toggle, ×-clear, picker popover** with HTML5 native drag-and-drop. The slot-as-module pattern is the canonical pattern for any future stackable stage (FX RACK in P3 should reuse it).
+- **Strict-factory migration**: pre-rack saves migrated `state.color` (single string) → slot 0 of new rack; pre-per-slot-params saves migrated to factory defaults for all slots once on first load. Subsequent saves persist per-slot tweaks normally.
+
+### Output & recording
+- **Snap** — single PNG export of the canvas (existing).
+- **Rec** — clip recording via `MediaRecorder` against `canvas.captureStream(60)`. MIME negotiation tries mp4 → webm/vp9 → vp8 → generic webm. Live elapsed-time label with pulsing red dot in the topbar; `R` toggles. 1-second `dataavailable` chunks. Auto-finalizes on source change. Video-only (no audio — privacy + the artistic content is the visuals). Files download as `fluxkit-<timestamp>.<ext>`.
 
 ### Design system (the meta-product)
 - **PRODUCT.md** — strategic register, users, brand personality, anti-references, design principles
@@ -233,12 +245,12 @@ Things that exist in FluxKit that the PRD didn't call for:
 
 The original PRD (v0.1, kept verbatim) is now best read as **the product FluxKit might pivot back toward in a future major version**, not the project as built. The path to closing the gap, in priority order:
 
-1. **Pipeline rewrite — P2 (FBO chain)** (§5.3): wire STRUCTURE's output into COLOR via an FBO instead of having both read raw video. Render-path work; UI/state already done in P1 (`c923fc7`). Required before items 3 and 5 land cleanly.
-2. **Pipeline rewrite — semantic half** (§5.3): single-channel luma intermediate flowing between STRUCTURE and COLOR. The infrastructure half (one shared GL context, P2's FBO chain) is the prerequisite; the meaning-of-the-signal half (luma-only mid-stage) is the actual ramp-editor enabler.
-3. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break." Blocked on items 1–2.
-4. **MediaRecorder clip export** (§4.7) — the #1 use case for the VJ persona, currently stuck at PNG-only. Independent of items 1–3; could ship now.
-5. **FX rack — P3 (mechanics + real effects)** (§3.3): rack slots are placeholders today. Need drag-to-reorder, per-slot toggle, real FX shaders, and Inv / Thermal folded in so PER-BLOB can be retired. Blocked on item 1.
-6. **Live shader thumbnails** (§4.4) — once the pipeline can run a shader on a test pattern off-screen.
+1. ~~**Pipeline rewrite — P2 (FBO chain)** (§5.3):~~ **DONE.** Shipped in `47007a2` (P2b chain wire-up). STRUCTURE writes to an intermediate FBO; an orchestrator-level compose pass screen-blends it back over the source video for screen-blend STRUCTUREs (voronoi / wave / cellular); COLOR samples the result. Multi-color stacking via the rack uses the same chain ping-pong (`9b775d7`).
+2. **Pipeline rewrite — semantic half** (§5.3): single-channel luma intermediate flowing between STRUCTURE and COLOR. The infrastructure half (one shared GL context, P2's FBO chain) is the prerequisite — done; the meaning-of-the-signal half (luma-only mid-stage) is the actual ramp-editor enabler. **Still not started.**
+3. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break." Blocked on item 2.
+4. ~~**MediaRecorder clip export** (§4.7)~~ **DONE.** Shipped — `Rec` button in the canvas top bar (keyboard `R`). `canvas.captureStream(60)` → MediaRecorder with MIME negotiation (mp4 → webm vp9 → vp8); chunked 1-second `dataavailable`; live elapsed-time label with pulsing red dot; auto-finalize on source change; downloads as `fluxkit-<timestamp>.<ext>`. Audio is intentionally not included (privacy + the artistic content is the visuals).
+5. **FX rack — P3 (mechanics + real effects)** (§3.3): rack slots are placeholders today. Need drag-to-reorder, per-slot toggle, real FX shaders, and Inv / Thermal folded in so PER-BLOB can be retired. Should adopt the *slot-as-module* pattern from the COLOR rack (per-slot params, inline knob panel under each slot when expanded). Blocked on item 1 (now done).
+6. **Live shader thumbnails** (§4.4) — once the pipeline can run a shader on a test pattern off-screen. Now possible since the orchestrator can render any effect to an arbitrary FBO (P2a refactor).
 7. **Project JSON save/load** (§5.2) — small lift, makes the tool shareable.
 8. **Missing structure effects** (§3.1) — Halftone, Edge, Threshold, Pixelate are easy wins.
 9. **Color-blind safe overlay defaults** — audit the 8-swatch overlay palette against deuteranopia / protanopia simulations (commitment in `PRODUCT.md`, not yet verified).
