@@ -84,6 +84,10 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const KNOB_ARC_LEN = 75;
 const KNOB_DRAG_PX = 150;
+// Wheel: one logical "tick" = ~40 px of accumulated deltaY (≈ one mouse-wheel
+// notch / one trackpad line). Threshold-based accumulation prevents trackpad
+// runaway; deltaMode normalization handles devices that report lines or pages.
+const WHEEL_TICK_PX = 40;
 
 function kebabToCamel(s) { return s.replace(/-([a-z])/g, (_, c) => c.toUpperCase()); }
 function snapToStep(v, min, step) {
@@ -231,11 +235,20 @@ function initKnob(el) {
     setValue(next);
   });
 
+  let wheelAccum = 0;
   el.addEventListener('wheel', (e) => {
     if (document.activeElement !== el && !el.matches(':hover')) return;
     e.preventDefault();
-    const dir = e.deltaY < 0 ? 1 : -1;
-    setValue(currentValue + dir * step * (e.shiftKey ? 1 : 5));
+    let dyPx = e.deltaY;
+    if (e.deltaMode === 1) dyPx *= WHEEL_TICK_PX;
+    else if (e.deltaMode === 2) dyPx *= window.innerHeight;
+    wheelAccum += dyPx;
+    let ticks = 0;
+    while (wheelAccum <= -WHEEL_TICK_PX) { wheelAccum += WHEEL_TICK_PX; ticks++; }
+    while (wheelAccum >=  WHEEL_TICK_PX) { wheelAccum -= WHEEL_TICK_PX; ticks--; }
+    if (!ticks) return;
+    const mult = e.shiftKey ? 10 : 1;
+    setValue(currentValue + ticks * step * mult);
   }, { passive: false });
 
   paint(currentValue);
