@@ -3,6 +3,8 @@
  * Conway-style CA seeded by video luminance, ping-pong FBOs.
  */
 
+import { uploadVideoTexture } from './glUtil.js';
+
 const VERT = `#version 300 es
 in vec2 a_pos;
 out vec2 vUV;
@@ -221,7 +223,7 @@ export function applyCA(ctx, video, cw, ch, params = {}) {
   gl.bindVertexArray(vao);
 
   gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+  uploadVideoTexture(gl, videoTex, video);
 
   // Pass 1: update CA state
   gl.bindFramebuffer(gl.FRAMEBUFFER, fbWrite.fb);

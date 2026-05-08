@@ -4,6 +4,8 @@
  * Renders video as 5x7 bitmap-font ASCII characters by luminance density.
  */
 
+import { uploadVideoTexture } from './glUtil.js';
+
 const VERT = `#version 300 es
 in vec2 a_pos;
 out vec2 vUV;
@@ -182,7 +184,7 @@ export function applyASCII(ctx, video, cw, ch, params = {}) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
   gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+  uploadVideoTexture(gl, videoTex, video);
 
   gl.useProgram(prog);
   gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, videoTex); gl.uniform1i(u.video, 0);

@@ -4,6 +4,8 @@
  * FBO encodes: R=visualization, G=u_curr*0.5+0.5, B=u_prev*0.5+0.5
  */
 
+import { uploadVideoTexture } from './glUtil.js';
+
 const VERT = `#version 300 es
 in vec2 a_pos;
 out vec2 vUV;
@@ -218,7 +220,7 @@ export function applyWave(ctx, video, cw, ch, params = {}) {
   gl.bindVertexArray(vao);
 
   gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+  uploadVideoTexture(gl, videoTex, video);
 
   // Pass 1: update wave state
   gl.bindFramebuffer(gl.FRAMEBUFFER, fbWrite.fb);

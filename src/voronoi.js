@@ -4,6 +4,8 @@
  * Output is composited onto the 2D display canvas via drawImage.
  */
 
+import { uploadVideoTexture } from './glUtil.js';
+
 // ---- Shaders ----
 
 const VERT = `#version 300 es
@@ -247,9 +249,9 @@ export function applyVoronoi(ctx, video, cw, ch, params = {}) {
   gl.viewport(0, 0, cw, ch);
   gl.bindVertexArray(vao);
 
-  // Upload current video frame
+  // Upload current video frame (allocate-once + texSubImage2D fast path)
   gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+  uploadVideoTexture(gl, videoTex, video);
 
   // --- Pass 1: update Voronoi map ---
   gl.bindFramebuffer(gl.FRAMEBUFFER, fbWrite.fb);

@@ -1,0 +1,31 @@
+/**
+ * Shared WebGL2 helpers for the effect modules.
+ *
+ * uploadVideoTexture: per-frame video upload with allocate-once + sub-image
+ * fast-path. The first call (or after the video's intrinsic size changes)
+ * does texImage2D, which allocates a fresh texture buffer. Every subsequent
+ * call does texSubImage2D, which writes into the existing buffer with no
+ * realloc cost. Saves ~8 MB GPU allocate+free per frame at 1080p.
+ *
+ * Caller MUST have already bound the texture (gl.bindTexture(TEXTURE_2D, tex))
+ * before calling. The `tex` argument is used only as a WeakMap key for tracking
+ * dimensions; replacing the texture (e.g. via init() after a canvas resize)
+ * automatically resets the cached dims when the old texture is GC'd.
+ *
+ * @returns {boolean} true if the upload happened, false if video isn't ready
+ */
+const _texDims = new WeakMap();
+
+export function uploadVideoTexture(gl, tex, video) {
+  const w = video.videoWidth | 0;
+  const h = video.videoHeight | 0;
+  if (w === 0 || h === 0) return false;
+  const last = _texDims.get(tex);
+  if (!last || last.w !== w || last.h !== h) {
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    _texDims.set(tex, { w, h });
+  } else {
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+  }
+  return true;
+}

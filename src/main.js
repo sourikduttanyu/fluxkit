@@ -1,6 +1,6 @@
 import './style.css';
 import { detectBlobs, resetFrameHistory } from './blobDetector.js';
-import { applyFilterToRegion } from './filters.js';
+import { applyFilterToSubregion } from './filters.js';
 import { drawOverlays } from './overlays.js';
 import { trackBlobs, resetTracker } from './kalman.js';
 import { applyVoronoi, resetVoronoi } from './voronoi.js';
@@ -43,7 +43,11 @@ let rafHandle   = 0;
 
 const video        = document.getElementById('video');
 const canvas       = document.getElementById('main-canvas');
-const ctx          = canvas.getContext('2d', { willReadFrequently: true });
+// GPU-backed display canvas. We only read from it when a CPU-filter is active
+// (inv/thermal), and that path now does ONE batched getImageData per frame
+// (see filters.js + renderFrame's batched block). Without this flip every
+// drawImage(video) and drawImage(webglCanvas) would round-trip through CPU.
+const ctx          = canvas.getContext('2d', { willReadFrequently: false });
 const placeholder  = document.getElementById('placeholder');
 const fileInput    = document.getElementById('file-input');
 const canvasArea   = document.getElementById('canvas-area');
@@ -679,13 +683,17 @@ function resizeCanvas() {
     canvas.width = cw; canvas.height = ch;
   }
 }
+// Resize is event-driven (ResizeObserver on the canvas area + window-resize
+// fallback + video metadata load). Reading clientWidth/clientHeight every
+// frame forces layout; this moves that cost off the hot render loop.
+const _ro = new ResizeObserver(resizeCanvas);
+_ro.observe(canvasArea);
 window.addEventListener('resize', resizeCanvas);
 
 // ---- Render loop ----
 function renderFrame() {
   if (!state.hasSource) { rafHandle = 0; return; }
   rafHandle = requestAnimationFrame(renderFrame);
-  resizeCanvas();
   if (video.readyState < 2 || video.videoWidth === 0) return;
 
   const cw = canvas.width;
@@ -748,20 +756,23 @@ function renderFrame() {
     applyGLFilter('falsecolor', ctx, video, cw, ch, [state.falsePalette, state.falseBand, state.falseBandCnt, state.falseBright]);
   }
 
-  // Per-blob CPU filters: getImageData/putImageData per blob = CPU<->GPU
-  // round-trip per region. Acceptable for non-GL filters; if blob counts grow
-  // large, batch into a single full-frame read.
-  if (state.filter !== 'none' && !FULL_FRAME_SET.has(state.filter)) {
+  // Per-blob CPU filters: ONE full-frame getImageData, N region passes that
+  // share the buffer, ONE putImageData. Replaces the old N-round-trip pattern
+  // (was 12-30 GPU↔CPU stalls per frame at maxBlobs default). Skipped entirely
+  // when no CPU filter is active so the display canvas stays GPU-resident.
+  if (state.filter !== 'none' && !FULL_FRAME_SET.has(state.filter) && blobs.length > 0) {
+    const full = ctx.getImageData(0, 0, cw, ch);
+    let touched = false;
     for (const blob of blobs) {
       const bx = Math.max(0, Math.floor(blob.x));
       const by = Math.max(0, Math.floor(blob.y));
       const bw = Math.min(cw - bx, Math.ceil(blob.w));
       const bh = Math.min(ch - by, Math.ceil(blob.h));
       if (bw <= 0 || bh <= 0) continue;
-      const region = ctx.getImageData(bx, by, bw, bh);
-      applyFilterToRegion(region.data, state.filter);
-      ctx.putImageData(region, bx, by);
+      applyFilterToSubregion(full.data, cw, bx, by, bw, bh, state.filter);
+      touched = true;
     }
+    if (touched) ctx.putImageData(full, 0, 0);
   }
 
   drawOverlays(ctx, blobs, state.regionStyle, state.shape, state.connectionRate, state.strokeWidth, state.blobSize, state.fontSize, state.overlayColor);

@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Inter font is loaded via <link rel=preconnect> + <link rel=stylesheet> in
+   index.html so the browser parallelizes the fetch with the rest of the page.
+   CSS @import would block style.css parsing on the Google Fonts round-trip. */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -245,7 +247,9 @@ label.section-label { cursor: pointer; }
   font-style: italic;
 }
 
-/* Per-effect cards — flat, tonal layer above sidebar */
+/* Per-effect cards — flat, tonal layer above sidebar.
+   contain: layout style paint isolates the card from the rest of the document
+   so knob drags inside one card don't trigger layout/paint outside it. */
 .effect-card {
   margin: var(--space-md) var(--space-lg);
   padding: var(--space-lg);
@@ -256,6 +260,7 @@ label.section-label { cursor: pointer; }
   flex-direction: column;
   gap: var(--space-md);
   position: relative;
+  contain: layout style paint;
   transition: border-color var(--duration-base) var(--ease-out);
 }
 .effect-card.active-card {
@@ -474,7 +479,10 @@ label.section-label { cursor: pointer; }
 }
 .knob:hover { background: rgba(247, 37, 133, 0.05); }
 .knob:focus-visible { background: rgba(247, 37, 133, 0.08); }
-.knob.dragging { background: rgba(247, 37, 133, 0.10); }
+/* will-change promotes the knob to its own compositor layer while dragging,
+   so the arc/pointer transform isn't repainted against the rest of the card.
+   Active only during drag (released on pointerup). */
+.knob.dragging { background: rgba(247, 37, 133, 0.10); will-change: transform; }
 
 .knob-svg {
   width: 40px;
@@ -848,6 +856,7 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   overflow-y: auto;
   box-shadow: var(--modal-lift);
   position: relative;
+  contain: layout style paint;
 }
 #help-panel h2 {
   font-size: 13px;
@@ -939,6 +948,7 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   line-height: 1.4;
   border-radius: 6px;
   pointer-events: auto;
+  contain: layout style paint;
   animation: toast-in var(--duration-slow) var(--ease-out);
 }
 .toast.toast-error { border-color: var(--state-danger); }
