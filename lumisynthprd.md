@@ -1,8 +1,8 @@
 # Implementation Status
 
-*Last updated: May 8, 2026. Captures the gap between this PRD (`v0.1 draft`, kept verbatim below) and the project as it actually exists today (`FluxKit`, `main` at commit `4c9fa70`, plus uncommitted help-tooltip + dev-audit work).*
+*Last updated: May 8, 2026. Captures the gap between this PRD (`v0.1 draft`, kept verbatim below) and the project as it actually exists today (`FluxKit`, `main` at commit `c923fc7`).*
 
-The honest summary: **the project diverged hard from this PRD.** The PRD describes a luminance synthesizer whose centerpiece is a ramp editor (luma → RGB lookup) with a 3-pane mixing console and a stack-style FX rack. What got built is a real-time video instrument whose centerpiece is **blob detection + Kalman tracking + per-blob overlays**, with a single sidebar and a one-effect-at-a-time picker. Both products are valid; they are not the same product.
+The honest summary: **the project diverged hard from this PRD, but the pipeline split started landing in P1.** The PRD describes a luminance synthesizer whose centerpiece is a ramp editor (luma → RGB lookup) with a 3-pane mixing console and a stack-style FX rack. What got built is a real-time video instrument whose centerpiece is **blob detection + Kalman tracking + per-blob overlays**. As of `c923fc7`, the sidebar now exposes the multi-stage pipeline the synth metaphor demands — **STRUCTURE → COLOR → FX RACK → PER-BLOB** — but render is still single-effect dispatch under the hood (see §5.3 below). Both products are still valid; they are not the same product, but FluxKit is now structurally closer to becoming the PRD's product than it was at `4c9fa70`.
 
 The taxonomy of changes:
 
@@ -77,7 +77,7 @@ The PRD calls for an Ableton-style FX rack. None of it is built:
 - All 10 FX shaders: RGB Split, Feedback Warp, Echo / Trail, Mirror, Datamosh, Scanline, CRT, Vignette, Grain, Bloom
 
 ### §4.1 Layout
-- 3-pane mixing console (left rail OSC 280px, center preview + ramp, right rail FX 280px). Currently a single 240px sidebar + canvas. Deferred per `PRD_DECISIONS.md` until an FX rack exists to fill a right rail.
+- 3-pane mixing console (left rail OSC 280px, center preview + ramp, right rail FX 280px). Currently a single 240px sidebar + canvas, but the sidebar is now stage-segmented (OSC / STRUCTURE / COLOR / FX RACK / PER-BLOB / FX) rather than one flat picker. The 3-pane split is still deferred per `PRD_DECISIONS.md` until the FX rack has real mechanics (P3) to justify its own column.
 
 ### §4.4 Live shader thumbnails
 - 32×32 live previews on the Structure picker that update as knobs change. Currently filter buttons are static gradient swatches that approximate each effect but do not reflect actual shader output or knob values.
@@ -120,16 +120,30 @@ These are spec items where the team picked a different path. Each is documented 
 | Framer Motion | CSS transitions only | All motion is `cubic-bezier(0.25, 1, 0.5, 1)` opacity/transform. JS animation library is overkill. |
 | ogl (or three.js) | Raw WebGL2 | Total of ~1,500 lines of GL code. Library overhead would dwarf the savings. |
 
-### Pipeline (§5.3) — the biggest architectural divergence
+### Pipeline (§5.3) — the biggest architectural divergence (P1 partially closed it)
 The PRD specifies a single linear pipeline with **single-channel luminance** flowing between OSC and FILTER:
 
 ```
 INPUT → STRUCTURE shader → 1-channel luma → FILTER (ramp lookup) → RGB → FX chain → OUTPUT
 ```
 
-Reality: each effect is a **monolithic shader operating directly on the full RGB video frame**. There is no luma-only intermediate, no ramp lookup stage, no FX chain post-filter. The "FILTER" stage in FluxKit's UI is just a one-of-N effect picker; nothing about it is a color-mapping ramp.
+Reality, pre-`c923fc7`: each effect was a **monolithic shader operating directly on the full RGB video frame**. There was no luma-only intermediate, no ramp lookup stage, no FX chain post-filter. The "FILTER" stage in FluxKit's UI was just a one-of-N effect picker spanning all 14 effects; nothing about it was a color-mapping ramp.
 
-Consequence: the project will not become the PRD's product without a substantial pipeline rewrite. The infrastructure half of that rewrite (a single shared WebGL2 context + canvas + video texture across all effect modules) is now done — see `src/glContext.js` under "Performance work" below. The semantic half (single-channel luma intermediate + ramp lookup) is not started; that's tracked as the **ramp editor** (§3.2) in the closing priority list.
+Reality, post-`c923fc7` (commit "feat(pipeline): split FILTER into STRUCTURE / COLOR / FX RACK / PER-BLOB"): the sidebar now models the multi-stage pipeline the synth metaphor demands —
+
+```
+video → STRUCTURE (1) → COLOR (1) → FX RACK (0–3 chained) → out
+                                                          + PER-BLOB overlay
+```
+
+— and `state.filter` has been split into `state.structure`, `state.color`, `state.perBlob`, plus `state.lastPicked` as a tiebreaker. PER-BLOB (Inv / Thermal) is now independent of the main chain. Pre-P1 saved sessions are migrated once on load. **But the render path is still single-effect dispatch:** `getActiveFilter()` resolves which of STRUCTURE / COLOR renders (favoring `lastPicked` when both are set). The FX rack is three dashed-border placeholder slots, inert. Effects are still RGB-in / RGB-out monolithic shaders; there is still no single-channel luma intermediate, no ramp lookup, and no real chained FX pass.
+
+Phasing from the commit message:
+- **P1 (done, `c923fc7`):** UI / state restructure only. Sidebar shows the stages; state model splits; PER-BLOB decoupled.
+- **P2 (not started):** Real STRUCTURE → COLOR FBO chain. COLOR consumes STRUCTURE's output instead of raw video.
+- **P3 (not started):** FX rack mechanics (drag-to-reorder, per-slot toggle), real FX shaders, and Inv / Thermal folded into the rack so PER-BLOB can be retired.
+
+Consequence: the project still will not become the PRD's product without finishing P2 + P3 and adding the ramp editor. The infrastructure half (a single shared WebGL2 context + canvas + video texture across all effect modules) is done — see `src/glContext.js` under "Performance work" below. The semantic half (single-channel luma intermediate + ramp lookup) is still not started; that's tracked as the **ramp editor** (§3.2) in the closing priority list.
 
 ### Effect taxonomy (§3.1, §6.2)
 - PRD CUT Crystal, Cellular, Wave, Voronoi Diff as "feedback shaders, bad UX in a drag-and-see-instantly app" (§6.2). FluxKit **built Cellular, Wave, Voronoi anyway**. They look great. The PRD was wrong about the UX cost.
@@ -219,14 +233,15 @@ Things that exist in FluxKit that the PRD didn't call for:
 
 The original PRD (v0.1, kept verbatim) is now best read as **the product FluxKit might pivot back toward in a future major version**, not the project as built. The path to closing the gap, in priority order:
 
-1. **Pipeline rewrite — semantic half** (§5.3): single-channel luma intermediate flowing between OSC and FILTER. The infrastructure half (one shared GL context across effects) is done; the meaning-of-the-signal half is not. Required before items 2 and 4 land cleanly.
-2. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break." Blocked on item 1.
-3. **MediaRecorder clip export** (§4.7) — the #1 use case for the VJ persona, currently stuck at PNG-only. Independent of items 1–2; could ship now.
-4. **FX rack** (§3.3) — once the pipeline supports chained passes.
-5. **Live shader thumbnails** (§4.4) — once the pipeline can run a shader on a test pattern off-screen.
-6. **Project JSON save/load** (§5.2) — small lift, makes the tool shareable.
-7. **Missing structure effects** (§3.1) — Halftone, Edge, Threshold, Pixelate are easy wins.
-8. **Color-blind safe overlay defaults** — audit the 8-swatch overlay palette against deuteranopia / protanopia simulations (commitment in `PRODUCT.md`, not yet verified).
+1. **Pipeline rewrite — P2 (FBO chain)** (§5.3): wire STRUCTURE's output into COLOR via an FBO instead of having both read raw video. Render-path work; UI/state already done in P1 (`c923fc7`). Required before items 3 and 5 land cleanly.
+2. **Pipeline rewrite — semantic half** (§5.3): single-channel luma intermediate flowing between STRUCTURE and COLOR. The infrastructure half (one shared GL context, P2's FBO chain) is the prerequisite; the meaning-of-the-signal half (luma-only mid-stage) is the actual ramp-editor enabler.
+3. **Ramp editor** (§3.2). The single biggest missing feature; the PRD calls it "the make-or-break." Blocked on items 1–2.
+4. **MediaRecorder clip export** (§4.7) — the #1 use case for the VJ persona, currently stuck at PNG-only. Independent of items 1–3; could ship now.
+5. **FX rack — P3 (mechanics + real effects)** (§3.3): rack slots are placeholders today. Need drag-to-reorder, per-slot toggle, real FX shaders, and Inv / Thermal folded in so PER-BLOB can be retired. Blocked on item 1.
+6. **Live shader thumbnails** (§4.4) — once the pipeline can run a shader on a test pattern off-screen.
+7. **Project JSON save/load** (§5.2) — small lift, makes the tool shareable.
+8. **Missing structure effects** (§3.1) — Halftone, Edge, Threshold, Pixelate are easy wins.
+9. **Color-blind safe overlay defaults** — audit the 8-swatch overlay palette against deuteranopia / protanopia simulations (commitment in `PRODUCT.md`, not yet verified).
 
 The team should also decide whether the PRD itself gets rewritten to match what FluxKit actually became (a video instrument with blob tracking as the core), or whether the spec stays as a future-state vision and FluxKit is acknowledged as a different product that grew alongside it.
 

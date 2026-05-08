@@ -204,7 +204,7 @@ Each state color is muted (low chroma) so it never competes with `orange-signal`
 The three sidebar stage labels (OSC, FILTER, FX) keep their three different hues to communicate signal direction, but at significantly lower chroma so they recede behind `orange-signal`. Eye still reads warm (input) → cool (output) like an audio chain, but no stage color competes with the orange active-state. Lightness is bumped up vs. the light-chassis variant so the labels stay legible against a dark chassis.
 
 - **Stage OSC** (`oklch(68% 0.09 65)`, ≈`#b89669`): Muted amber. The input stage. Source video, blob detection, the energy entering the system.
-- **Stage Filter** (`oklch(60% 0.13 5)`, ≈`#b66575`): Muted plum-rose. The transformation stage. Effect picker plus per-effect knob grids. Shifted toward red so it harmonizes with the rare `red-accent` instead of fighting it.
+- **Stage Filter** (`oklch(60% 0.13 5)`, ≈`#b66575`): Muted plum-rose. The transformation chain. Originally one FILTER section; now shared by the **STRUCTURE**, **COLOR**, **FX RACK**, and **PER-BLOB** stage dividers — the pipeline split is communicated through divider labels and the COLOR rack chrome, while the divider colors stay one shared hue so the eye reads "video coming through the transformation engine" as one continuous unit. The token name `--stage-filter` is preserved for CSS continuity. Shifted toward red so it harmonizes with the rare `red-accent` instead of fighting it.
 - **Stage FX** (`oklch(64% 0.08 220)`, ≈`#7a96b1`): Muted slate-teal. The output stage. Region style, shape, overlay color, blob size, font, connection rate.
 
 ### Knob caps
@@ -224,7 +224,7 @@ These are exposed as design tokens because they appear inside the SVG knob and n
 
 **The Two-Color Rule.** Orange and red are the only saturated chromas in the chrome. No greens, blues, purples, teals, pinks, or yellows appear as primary surface or accent colors anywhere. Stage labels and state colors are LOW-chroma — they read as tinted greyscale, not as color in the design sense. If you find yourself reaching for a fourth or fifth saturated hue, you are decorating, and FluxKit is not decorated.
 
-**The Signal-Flow Rule.** The three stage dividers are color-coded to signal flow direction: amber (OSC, source) → plum-rose (FILTER, transformation) → slate-teal (FX, output). The eye should be able to scan the sidebar top-to-bottom and feel the input-to-output journey without reading any words. Stage colors appear ONLY on stage-divider labels; using them on any other surface dilutes their meaning. The chroma here is intentionally low so stage colors never compete with `orange-signal` for attention.
+**The Signal-Flow Rule.** The sidebar uses three stage hues color-coded to signal-flow direction: amber (OSC, source) → plum-rose (transformation: STRUCTURE / COLOR / FX RACK / PER-BLOB, all sharing one hue) → slate-teal (FX, output). The eye should be able to scan the sidebar top-to-bottom and feel the input-to-output journey without reading any words. The transformation chain reads as one continuous unit by holding one hue across its four dividers; the divider *labels* communicate the pipeline split, the *colors* communicate the signal-flow position. Stage colors appear ONLY on stage-divider labels; using them on any other surface dilutes their meaning. The chroma here is intentionally low so stage colors never compete with `orange-signal` for attention.
 
 ## 3. Typography
 
@@ -289,7 +289,7 @@ The scale is unchanged across palette pivots — spacing is about rhythm, and th
 
 ### Architecture rules for the sidebar
 
-The sidebar is a vertical stack of stage groups. Three stages, color-coded dividers (low-chroma per The Two-Color Rule), no per-section dividers.
+The sidebar is a vertical stack of stage groups. Six stage dividers (OSC, STRUCTURE, COLOR, FX RACK, PER-BLOB, FX), color-coded by signal-flow position into three hues — the four transformation-chain dividers (STRUCTURE / COLOR / FX RACK / PER-BLOB) all share the plum-rose `--stage-filter` hue so the chain reads as one unit (low-chroma per The Two-Color Rule). No per-section dividers.
 
 - **Stage divider** owns staging. `padding: var(--space-xl) var(--space-xl) var(--space-sm)` — generous breath above, hairline rule line below the label, then control sections begin tight under it.
 - **Control sections within a stage** are quiet. `padding: var(--space-md) var(--space-lg)` and **no `border-bottom`** — sections inside one stage read as a single tonal group, not as eight equally-weighted rows. The stage-divider is the only horizontal seam.
@@ -299,7 +299,7 @@ The sidebar is a vertical stack of stage groups. Three stages, color-coded divid
 
 **The Spacing-Token Rule.** Every `padding`, `margin`, and `gap` value in component CSS must come from a `--space-*` token. Raw px values for spacing are forbidden in chrome rules. Exceptions: borders (always `1px solid`), focus-ring offsets (locked at `2px`), the universal reset (`margin: 0; padding: 0;`), intra-component micro-spacing where the value is part of the component's geometric definition (knob's intra-stack `gap: 3px`, sidebar-header-text's tight `gap: 1px`).
 
-**The Stage-Owns-Staging Rule.** Within a stage (OSC, FILTER, FX), control sections do not draw their own bottom borders. The stage-divider is the only horizontal seam in the sidebar. Adding a `border-bottom` to `.control-section` over-segments the sidebar and dilutes the three-stage architecture; the eye should read three groups, not eight rows.
+**The Stage-Owns-Staging Rule.** Within any stage (OSC, STRUCTURE, COLOR, FX RACK, PER-BLOB, FX), control sections do not draw their own bottom borders. The stage-divider is the only horizontal seam in the sidebar. Adding a `border-bottom` to `.control-section` over-segments the sidebar and dilutes the staged architecture; the eye should read six labeled groups (three by signal-flow color), not N equally-weighted rows.
 
 ## 6. Components
 
@@ -338,14 +338,59 @@ Used for radio groups: speed, detect mode, region style, shape, blob size, erode
 - **Hover:** background `Surface Hover`, text `Text Key`. No border treatment.
 - **Active (`aria-checked="true"`):** background `Orange Signal`, text `Knob Cap Black` (a near-black reads more legibly on saturated orange than white would), font weight 700. The active state is the only place orange appears as a fill on a chrome surface at rest, and it is always exactly one button per group.
 
-### Filter Button (`#filter-group .toggle-btn`) — the signature
+### Filter Swatch Button (`.filter-swatch-group .toggle-btn`) — the signature picker for single-pick stages
 
-The 14 effect choices in the FILTER section. Each button is a **full-bleed gradient swatch** approximating the effect's output palette (thermal: black → purple → red → yellow → white; biolum: dark → cyan → violet; etc.). The label sits over the swatch with text-shadow for legibility.
+The picker buttons used by **STRUCTURE** and **PER-BLOB** (the two stages that pick exactly one effect, plus None). Each button is a **full-bleed gradient swatch** approximating the effect's output palette (thermal: black → purple → red → yellow → white; biolum: dark → cyan → violet; etc.). The label sits over the swatch with text-shadow for legibility.
+
+> **Selector history:** these buttons used to live in a single `#filter-group` covering all 14 effects. After the FILTER → STRUCTURE / COLOR / FX RACK / PER-BLOB pipeline split, the class `.filter-swatch-group` was introduced and applied to `#structure-group` and `#perblob-group`. COLOR is no longer a swatch grid — it uses the **Color Rack Chip** pattern below. This means the swatch-button population dropped from 14 to 9 (STRUCTURE: None + 6, PER-BLOB: None + 2); the COLOR effects' identity moved to chip swatches inside the rack instead.
 
 - **Shape:** rounded 4px (`{rounded.md}`), 33% width (3-up grid), min-height 42px (taller than other toggles to give the swatch room).
-- **Per-button background:** linear gradient unique to each filter. The gradient IS the button's identity. With it, the user can recognize ASCII vs. Voronoi vs. Thermo at a glance after one session of use. The gradients are a deliberate exception to The Two-Color Rule because they're *previewing the canvas output*, which is creative content and exempt by the same logic that exempts the canvas itself.
+- **Per-button background:** linear gradient unique to each effect. The gradient IS the button's identity. With it, the user can recognize ASCII vs. Voronoi vs. Thermal at a glance after one session of use. The gradients are a deliberate exception to The Two-Color Rule because they're *previewing the canvas output*, which is creative content and exempt by the same logic that exempts the canvas itself.
 - **Inactive:** dark scrim overlay (`linear-gradient(180deg, rgba(0,0,0,0.20), rgba(0,0,0,0.65))`) on top of the swatch so the white label stays readable.
 - **Active:** 2px `Orange Signal` border, scrim lightened to (`rgba(0,0,0,0.05) → rgba(0,0,0,0.45)`), font weight 700. **No box-shadow glow.** The orange border is the only signal of active state — color, not glow.
+
+### Color Rack Slot (`.color-rack-slot`) — the chained-stage picker
+
+The COLOR stage is a 0–3 slot rack rendered into `#color-rack`, not a swatch grid. Three fixed slots stack vertically; each slot holds one of the 5 colors or is empty / disabled. Slots run in series — slot 0 → slot 1 → slot 2 — and can be dragged to reorder. The rack is the canonical pattern for any future stage that needs ordered, toggleable, drag-reorderable composition (the FX RACK in P3 will follow the same pattern).
+
+A slot is a 4-cell grid: **handle · chip · toggle · remove**. The handle is the only drag affordance; clicking the chip opens the picker popover; the toggle pauses a slot without losing its pick; the × clears the slot back to empty (rack length is fixed at 3).
+
+- **Slot shape:** rounded 6px (`{rounded.xl}`), `background: Bg Stage`, `border: 1px Border Hairline`, min-height 36px, padding `{spacing.xs}`.
+- **Empty slot:** dashed border, only handle + "+ add color" placeholder chip (no toggle / remove since there's nothing to disable or clear).
+- **Disabled slot (filled but ⊘):** chip label and chip swatch dim to opacity 0.45; slot border stays solid (the slot is filled in the rack — just paused).
+- **Drag-in-progress slot:** opacity 0.4, cursor `grabbing`. Drop target slot draws a 2px `Orange Signal` top border via `::before` showing the insertion point — sits inside the slot's own 1px hairline so it doesn't reflow.
+
+#### Color Rack Chip (`.color-rack-chip`) — the body of a slot
+
+The button inside a slot that shows the slot's current color and opens the picker.
+
+- **Shape:** rounded 4px (`{rounded.md}`), `background: Surface Raised`, `border: 1px Border Hairline`, padding `4px 8px`, min-height 26px.
+- **Layout:** 18px gradient mini-swatch (matching the filter-swatch gradient for that color, with an inner shadow for inset depth) + label.
+- **Hover:** background `Surface Hover`, text `Text Key`.
+- **Open picker (`aria-expanded="true"`):** border becomes `Orange Signal` (the chip is currently the source of the open popover — the orange-is-being-touched signal applies).
+- **Empty placeholder:** italic `Text Faint`, text "+ add color".
+
+#### Color Rack Toggle (`.color-rack-toggle`) — the on/off pill
+
+24×24 round pill at the right edge of a filled slot.
+
+- **Enabled (`aria-pressed="true"`):** ✓ glyph, background `Orange Signal`, text `Knob Cap Black`. Orange because the slot is actively rendering.
+- **Disabled:** ⊘ glyph, transparent background, border `Border Hairline`, text `Text Muted`. Hover lifts border to `Orange Signal` (about to be re-enabled).
+
+#### Color Picker Popover (`.color-picker-popover`)
+
+Shared, body-level popover. Anchored under whichever chip opened it. Click outside or `Esc` to close. 3-column grid of 6 buttons (None + 5 colors).
+
+- **Shape:** rounded 6px (`{rounded.xl}`), `background: Surface Card`, `border: 1px Border Hairline`, padding `{spacing.sm}`, `z-index: 50`.
+- **Shadow:** small ambient cast `0 8px 24px oklch(0% 0 0 / 0.55)`. Justified deviation from Flat-By-Default — the popover is a transient floating surface (same logic as toast / video controls / help-tooltip).
+
+### FX Rack Slot (`.fx-rack-slot`) — placeholder pedalboard
+
+Three dashed-border slots in the FX RACK section. Visual-only until P3 wires the rack mechanics. Reads as "deprecated / pending" by virtue of dashed border + faint italic "— empty —" copy + no hover treatment. When P3 lands, this component is expected to converge with `.color-rack-slot` (same handle / chip / toggle / remove pattern).
+
+- **Shape:** rounded 6px (`{rounded.xl}`), `background: Bg Stage`, `border: 1px dashed Border Hairline`.
+- **Text:** `Text Faint`, italic, 10px, letter-spacing `0.06em`.
+- **No hover state.** The slots are not interactive.
 
 ### Knob (`.knob`) — the signature instrument component
 
@@ -375,9 +420,9 @@ The container that holds per-effect knob grids. One visible at a time (matched t
 - **Internal padding:** 12px (`{spacing.lg}`).
 - **Knob grid:** 2-column, gap `22px 8px` (row gap accommodates the value-tooltip drop without colliding with the next row).
 
-### Empty Card (`.empty-card`)
+### Empty Card (`.empty-card`) — *deprecated, retained as token only*
 
-Placeholder shown in the FILTER stack when no effect is selected. Italic, centered, dashed border. Communicates "this slot is intentionally empty" not "something failed to load".
+> **Status:** removed from chrome in commit `c923fc7` (the FILTER → STRUCTURE / COLOR / FX RACK / PER-BLOB pipeline split). Each of those stages now uses its own None button as the empty state instead of a single shared empty-card div. The CSS rule no longer exists in `style.css`. The frontmatter component token `empty-card` and the `DESIGN.json` entry are retained for the dashed-border / `Bg Stage` / italic `Text Faint` recipe — that recipe is the basis of the FX Rack Slot and the empty Color Rack Slot, and may return as a standalone component in a future stage. The visual recipe below is preserved for reference.
 
 - **Shape:** rounded 8px (`{rounded.2xl}`).
 - **Background:** `Bg Stage` (one step darker than `Bg Room` — the empty state recedes into the chassis rather than raising forward).
@@ -445,7 +490,7 @@ Overlay-color palette. 8 swatches in a row, plus native `<input type="color">` a
 - **Do** respect `prefers-reduced-motion` on every transition (toast enter, knob arc transition, card hover).
 - **Do** keep the active state of each radio group to exactly one button. The single orange rectangle IS the affordance.
 - **Do** use `font-variant-numeric: tabular-nums` on every numeric value (knob value, FPS, timecode). Digits must not jitter.
-- **Do** color-code the three stage dividers by signal-flow direction: amber (OSC) → plum-rose (FILTER) → slate-teal (FX). All low-chroma, none competing with `orange-signal`.
+- **Do** color-code the sidebar's stage dividers by signal-flow direction: amber (OSC) → plum-rose (the transformation chain — STRUCTURE / COLOR / FX RACK / PER-BLOB, all four sharing this hue) → slate-teal (FX, output). All low-chroma, none competing with `orange-signal`.
 - **Do** use `state-info` (slate blue) for informational status (modified-from-default dot). Reserve `orange-signal` for the act of changing.
 - **Do** use `--space-*` tokens for every padding, margin, and gap.
 - **Do** let the stage-divider own all horizontal staging in the sidebar.

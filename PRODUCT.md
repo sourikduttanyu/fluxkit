@@ -42,7 +42,9 @@ The interface must serve all three without collapsing to a lowest-common-denomin
 
 ## Product Purpose
 
-FluxKit is a browser-only real-time video instrument. Webcam or video file in, motion or luma blob detection, Kalman tracking, fourteen WebGL2 effects, the result rendered live with no server round-trip. Nothing leaves the machine. Success is a person who came in to play, found a look they did not know they wanted, and either saved it or kept dialing.
+FluxKit is a browser-only real-time video instrument. Webcam or video file in, blob detection (six modes — Motion, Luma, Dark, Sat, Edge, Sharp) with Kalman tracking, then a staged WebGL2 pipeline — **STRUCTURE** (geometry / pattern, pick one of 6) → **COLOR** (palette / tone, a 0–3 slot rack picked from 5 colors, chained in series) → **FX RACK** (chain · 0–3 slots, placeholder) — with a separate **PER-BLOB** overlay (Inv / Thermal) layered on top. The result renders live with no server round-trip. Nothing leaves the machine. Success is a person who came in to play, found a look they did not know they wanted, and either saved it or kept dialing.
+
+> Pipeline status: STRUCTURE → COLOR is a real FBO chain (shipped in P2), with an orchestrator-level compose pass that screen-blends STRUCTURE's output back over the source video so glow-over-video effects (voronoi / wave / cellular) keep their identity when COLOR is downstream. COLOR is a 3-slot drag-reorderable rack (each slot empty / disabled / one of 5 colors). The **FX RACK** stage is still inert placeholder slots — drag-reorder mechanics, real FX shaders, and folding Inv / Thermal in from PER-BLOB land in P3. See `lumisynthprd.md` for the implementation-status breakdown.
 
 ## Brand Personality
 
