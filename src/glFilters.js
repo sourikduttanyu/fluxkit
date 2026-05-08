@@ -4,7 +4,7 @@
  * applyGLFilter(name, ctx, video, cw, ch, [p0,p1,p2,p3])
  */
 
-import { uploadVideoTexture } from './glUtil.js';
+import { ensureContext, uploadVideoFrame, compositeToCanvas2D, getGL } from './glContext.js';
 
 const VERT = `#version 300 es
 in vec2 a_pos;
@@ -294,42 +294,23 @@ function createProgram(gl, vSrc, fSrc) {
 
 // ---- Module state ----
 
-let S = null; // { gl, canvas, vao, videoTex, programs: {}, w, h }
-
-function init(w, h) {
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, alpha: true });
-  if (!gl) { console.warn('[glFilters] WebGL2 not supported'); return null; }
-
-  const vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
-  const videoTex = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  return { gl, canvas, vao, videoTex, programs: {}, w, h };
-}
+// Effect-specific state only — a lazy-compiled program cache per filter name.
+// GL context, canvas, video texture, and fullscreen-quad VAO live in
+// glContext.js.
+const _programs = Object.create(null);
 
 function getProgram(name) {
-  if (S.programs[name]) return S.programs[name];
-  const prog = createProgram(S.gl, VERT, FRAGS[name]);
+  if (_programs[name]) return _programs[name];
+  const gl = getGL();
+  if (!gl) return null;
+  const prog = createProgram(gl, VERT, FRAGS[name]);
   if (!prog) return null;
   const entry = {
     prog,
-    video:  S.gl.getUniformLocation(prog, 'u_video'),
-    params: S.gl.getUniformLocation(prog, 'uParams'),
+    video:  gl.getUniformLocation(prog, 'u_video'),
+    params: gl.getUniformLocation(prog, 'uParams'),
   };
-  S.programs[name] = entry;
+  _programs[name] = entry;
   return entry;
 }
 
@@ -342,21 +323,17 @@ function getProgram(name) {
  */
 export function applyGLFilter(name, ctx, video, cw, ch, params = [0.5, 0.5, 0.5, 0.5]) {
   if (!FRAGS[name]) return;
-  if (!S || S.w !== cw || S.h !== ch) {
-    S = init(cw, ch);
-    if (!S) return;
-  }
+  const S = ensureContext(cw, ch);
+  if (!S) return;
 
   const entry = getProgram(name);
   if (!entry) return;
 
-  const { gl, canvas, vao, videoTex } = S;
+  const { gl, vao, videoTex } = S;
   gl.viewport(0, 0, cw, ch);
   gl.bindVertexArray(vao);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-  gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  uploadVideoTexture(gl, videoTex, video);
+  uploadVideoFrame(video);
 
   gl.useProgram(entry.prog);
   gl.activeTexture(gl.TEXTURE0);
@@ -365,8 +342,5 @@ export function applyGLFilter(name, ctx, video, cw, ch, params = [0.5, 0.5, 0.5,
   gl.uniform4f(entry.params, params[0], params[1], params[2], params[3]);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-  ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.drawImage(canvas, 0, 0, cw, ch);
-  ctx.restore();
+  compositeToCanvas2D(ctx, cw, ch, 'source-over');
 }

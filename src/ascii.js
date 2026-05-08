@@ -4,7 +4,7 @@
  * Renders video as 5x7 bitmap-font ASCII characters by luminance density.
  */
 
-import { uploadVideoTexture } from './glUtil.js';
+import { ensureContext, uploadVideoFrame, compositeToCanvas2D, getGL } from './glContext.js';
 
 const VERT = `#version 300 es
 in vec2 a_pos;
@@ -126,38 +126,27 @@ function createProgram(gl, vSrc, fSrc) {
 
 // ---- Module state ----
 
-let S = null;
+// Effect-specific state only. GL context, canvas, video texture, and
+// fullscreen-quad VAO live in glContext.js. Note: the shared video texture
+// uses LINEAR filtering (the choice for voronoi/cellular/wave). ASCII used
+// to use NEAREST on its private texture; the shader samples at sub-texel
+// cell centers so this swap turns the per-cell luma sample into a small
+// bilinear average instead of a snapped texel. Visually subtle; arguably
+// slightly less aliased.
+let M = null;
 
-function init(w, h) {
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, alpha: true });
-  if (!gl) { console.warn('[ASCII] WebGL2 not supported'); return null; }
-
+function initProgram() {
+  const gl = getGL();
+  if (!gl) return null;
   const prog = createProgram(gl, VERT, ASCII_FRAG);
   if (!prog) return null;
-
-  const vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
-  const videoTex = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  const u = {
-    video:  gl.getUniformLocation(prog, 'u_video'),
-    params: gl.getUniformLocation(prog, 'uParams'),
+  return {
+    prog,
+    u: {
+      video:  gl.getUniformLocation(prog, 'u_video'),
+      params: gl.getUniformLocation(prog, 'uParams'),
+    },
   };
-
-  return { gl, canvas, prog, vao, videoTex, u, w, h };
 }
 
 /**
@@ -172,28 +161,25 @@ export function applyASCII(ctx, video, cw, ch, params = {}) {
   const blackThresh   = params.blackThreshold ?? 0.2;
   const glyphStrength = params.glyphStrength  ?? 0.9;
 
-  if (!S || S.w !== cw || S.h !== ch) {
-    S = init(cw, ch);
-    if (!S) return;
+  const S = ensureContext(cw, ch);
+  if (!S) return;
+  if (!M) {
+    M = initProgram();
+    if (!M) return;
   }
 
-  const { gl, canvas, prog, vao, videoTex, u } = S;
+  const { gl, vao, videoTex } = S;
+  const { prog, u } = M;
 
   gl.viewport(0, 0, cw, ch);
   gl.bindVertexArray(vao);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-  gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  uploadVideoTexture(gl, videoTex, video);
+  uploadVideoFrame(video);
 
   gl.useProgram(prog);
   gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, videoTex); gl.uniform1i(u.video, 0);
   gl.uniform4f(u.params, cellSize, contrast, blackThresh, glyphStrength);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-  // Replace video on canvas (not 'screen' — ASCII is the image, not an overlay)
-  ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.drawImage(canvas, 0, 0, cw, ch);
-  ctx.restore();
+  compositeToCanvas2D(ctx, cw, ch, 'source-over');
 }

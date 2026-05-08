@@ -4,7 +4,7 @@
  * FBO encodes: R=visualization, G=u_curr*0.5+0.5, B=u_prev*0.5+0.5
  */
 
-import { uploadVideoTexture } from './glUtil.js';
+import { ensureContext, uploadVideoFrame, compositeToCanvas2D, getGL } from './glContext.js';
 
 const VERT = `#version 300 es
 in vec2 a_pos;
@@ -136,61 +136,62 @@ function createFBO(gl, w, h) {
 
 // ---- Module state ----
 
-let S = null;
+// Effect-specific state only. GL context, canvas, video texture, and
+// fullscreen-quad VAO live in glContext.js.
+let M = null;
 
-function init(w, h) {
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, alpha: true });
-  if (!gl) { console.warn('[Wave] WebGL2 not supported'); return null; }
-
+function initPrograms() {
+  const gl = getGL();
+  if (!gl) return null;
   const updateProg  = createProgram(gl, VERT, UPDATE_FRAG);
   const displayProg = createProgram(gl, VERT, DISPLAY_FRAG);
   if (!updateProg || !displayProg) return null;
-
-  const vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
-  const videoTex = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  const uUpdate = {
-    video:  gl.getUniformLocation(updateProg,  'u_video'),
-    prev:   gl.getUniformLocation(updateProg,  'u_prev'),
-    params: gl.getUniformLocation(updateProg,  'uParams'),
-  };
-  const uDisplay = {
-    wave: gl.getUniformLocation(displayProg, 'u_wave'),
-  };
-
   return {
-    gl, canvas, updateProg, displayProg, vao,
-    fb0: createFBO(gl, w, h),
-    fb1: createFBO(gl, w, h),
-    videoTex, uUpdate, uDisplay,
-    pingPong: 0, w, h,
+    updateProg, displayProg,
+    uUpdate: {
+      video:  gl.getUniformLocation(updateProg, 'u_video'),
+      prev:   gl.getUniformLocation(updateProg, 'u_prev'),
+      params: gl.getUniformLocation(updateProg, 'uParams'),
+    },
+    uDisplay: {
+      wave: gl.getUniformLocation(displayProg, 'u_wave'),
+    },
   };
 }
 
+function disposeFBOs() {
+  if (!M || !M.fb0) return;
+  const gl = getGL();
+  if (!gl) return;
+  for (const { fb, tex } of [M.fb0, M.fb1]) {
+    gl.deleteFramebuffer(fb);
+    gl.deleteTexture(tex);
+  }
+  M.fb0 = M.fb1 = null;
+}
+
+function ensureFBOs(w, h) {
+  if (M && M.fb0 && M.w === w && M.h === h) return;
+  disposeFBOs();
+  const gl = getGL();
+  M.fb0 = createFBO(gl, w, h);
+  M.fb1 = createFBO(gl, w, h);
+  M.w = w;
+  M.h = h;
+  M.pingPong = 0;
+}
+
 export function resetWave() {
-  if (!S) return;
-  const { gl, fb0, fb1 } = S;
-  for (const { fb } of [fb0, fb1]) {
+  if (!M || !M.fb0) return;
+  const gl = getGL();
+  if (!gl) return;
+  for (const { fb } of [M.fb0, M.fb1]) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  S.pingPong = 0;
+  M.pingPong = 0;
 }
 
 /**
@@ -205,22 +206,25 @@ export function applyWave(ctx, video, cw, ch, params = {}) {
   const speed          = params.speed          ?? 0.5;
   const contrast       = params.contrast       ?? 0.5;
 
-  if (!S || S.w !== cw || S.h !== ch) {
-    S = init(cw, ch);
-    if (!S) return;
+  const S = ensureContext(cw, ch);
+  if (!S) return;
+  if (!M) {
+    M = initPrograms();
+    if (!M) return;
+    M.w = -1; M.h = -1; M.pingPong = 0; M.fb0 = M.fb1 = null;
   }
+  ensureFBOs(cw, ch);
 
-  const { gl, canvas, updateProg, displayProg, vao, fb0, fb1, videoTex, uUpdate, uDisplay } = S;
+  const { gl, vao, videoTex } = S;
+  const { updateProg, displayProg, uUpdate, uDisplay, fb0, fb1 } = M;
 
-  const fbRead  = S.pingPong === 0 ? fb0 : fb1;
-  const fbWrite = S.pingPong === 0 ? fb1 : fb0;
-  S.pingPong ^= 1;
+  const fbRead  = M.pingPong === 0 ? fb0 : fb1;
+  const fbWrite = M.pingPong === 0 ? fb1 : fb0;
+  M.pingPong ^= 1;
 
   gl.viewport(0, 0, cw, ch);
   gl.bindVertexArray(vao);
-
-  gl.bindTexture(gl.TEXTURE_2D, videoTex);
-  uploadVideoTexture(gl, videoTex, video);
+  uploadVideoFrame(video);
 
   // Pass 1: update wave state
   gl.bindFramebuffer(gl.FRAMEBUFFER, fbWrite.fb);
@@ -236,8 +240,5 @@ export function applyWave(ctx, video, cw, ch, params = {}) {
   gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fbWrite.tex); gl.uniform1i(uDisplay.wave, 0);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-  ctx.save();
-  ctx.globalCompositeOperation = 'screen';
-  ctx.drawImage(canvas, 0, 0, cw, ch);
-  ctx.restore();
+  compositeToCanvas2D(ctx, cw, ch, 'screen');
 }
