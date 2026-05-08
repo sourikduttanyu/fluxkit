@@ -67,10 +67,11 @@ Tone in microcopy: terse, observational, never marketing-voiced. ("Reset to defa
 
 ## References
 
-The aesthetic family FluxKit lives in: **browser shader playground crossed with hardware synth UI**. Touchable knob density, signal-flow visible, dark surface so the canvas output dominates, color used to encode state and never as decoration.
+The aesthetic family FluxKit lives in: **browser shader playground crossed with industrial-instrument hardware UI**. Touchable knob density, signal-flow visible, the canvas dominates by tonal contrast (a dark display surface embedded in a lighter chassis, the way a Teenage Engineering K.O. II has dark screens set into a grey body), color used to encode state and never as decoration.
 
 ### Positive references
 
+- **Teenage Engineering K.O. II / K.O. Sidekick.** Industrial product design distilled. Light grey chassis, restrained palette (orange as the only saturated color, red used sparingly for emphasis), dark display surfaces where the work happens, every control labeled in tight uppercase. The chassis is quiet so the work is loud.
 - **Lumen.** Atmospheric, signal-flow visible, controls feel alive without being noisy.
 - **Cables.gl.** Browser-native, technical, comfortable with complexity, does not apologize for being a tool.
 - **Ableton Push UI.** Physical-instrument discipline: every control has a place, knob density is high but legible, ambient color used to encode state.
@@ -82,6 +83,9 @@ The aesthetic family FluxKit lives in: **browser shader playground crossed with 
 > Vital / Serum, Ableton Push UI, VCV Rack, TouchDesigner, Lumen, Cables.gl, Hydra video synth, Resolume.
 >
 > **Picked**: Lumen, Cables.gl, "maybe some Ableton Push UI".
+
+> **Q5a (later, on `design/te-workbench-palette` branch).**
+> Added Teenage Engineering K.O. II / K.O. Sidekick as a fourth positive reference, alongside the original three. The palette pivot in this branch (light industrial chassis + orange signal, replacing the dim purple + pink signal of the `main` branch) is grounded in the K.O. II's restrained color use. If this branch merges, the Creative North Star in `DESIGN.md` shifts from "The Late-Night Patch" to "The Studio Workbench" — see `PRD_DECISIONS.md` Q1 for the original North Star choice that this would supersede.
 
 ## Anti-references
 

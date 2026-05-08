@@ -1,311 +1,256 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-05-07T20:44:00Z",
-  "title": "Design System: FluxKit",
+  "generatedAt": "2026-05-08T19:10:00Z",
+  "title": "Design System: FluxKit (Workbench palette — dark graphite)",
   "extensions": {
     "colorMeta": {
-      "pink-signal": {
+      "orange-signal": {
         "role": "primary",
-        "displayName": "Pink Signal",
-        "canonical": "oklch(63% 0.27 5)",
+        "displayName": "Orange Signal",
+        "canonical": "oklch(70% 0.21 45)",
         "tonalRamp": [
-          "oklch(15% 0.08 5)",
-          "oklch(25% 0.14 5)",
-          "oklch(38% 0.22 5)",
-          "oklch(50% 0.27 5)",
-          "oklch(63% 0.27 5)",
-          "oklch(74% 0.22 5)",
-          "oklch(85% 0.14 5)",
-          "oklch(94% 0.05 5)"
+          "oklch(20% 0.10 45)",
+          "oklch(32% 0.16 45)",
+          "oklch(45% 0.21 45)",
+          "oklch(58% 0.21 45)",
+          "oklch(70% 0.21 45)",
+          "oklch(80% 0.18 45)",
+          "oklch(90% 0.10 45)",
+          "oklch(96% 0.04 45)"
         ]
       },
-      "purple-deep": {
-        "role": "secondary",
-        "displayName": "Purple Deep",
-        "canonical": "oklch(46% 0.22 305)",
+      "red-accent": {
+        "role": "rare-emphasis",
+        "displayName": "Red Accent",
+        "canonical": "oklch(60% 0.22 25)",
         "tonalRamp": [
-          "oklch(12% 0.06 305)",
-          "oklch(22% 0.12 305)",
-          "oklch(34% 0.18 305)",
-          "oklch(46% 0.22 305)",
-          "oklch(58% 0.22 305)",
-          "oklch(70% 0.18 305)",
-          "oklch(82% 0.12 305)",
-          "oklch(93% 0.04 305)"
-        ]
-      },
-      "indigo-cool": {
-        "role": "secondary",
-        "displayName": "Indigo Cool",
-        "canonical": "oklch(54% 0.24 270)",
-        "tonalRamp": [
-          "oklch(14% 0.06 270)",
-          "oklch(24% 0.12 270)",
-          "oklch(38% 0.20 270)",
-          "oklch(54% 0.24 270)",
-          "oklch(66% 0.22 270)",
-          "oklch(76% 0.16 270)",
-          "oklch(86% 0.10 270)",
-          "oklch(94% 0.04 270)"
+          "oklch(15% 0.08 25)",
+          "oklch(28% 0.14 25)",
+          "oklch(42% 0.20 25)",
+          "oklch(60% 0.22 25)",
+          "oklch(72% 0.20 25)",
+          "oklch(82% 0.14 25)",
+          "oklch(90% 0.08 25)",
+          "oklch(96% 0.03 25)"
         ]
       },
       "bg-stage": {
-        "role": "neutral",
+        "role": "neutral-chassis",
         "displayName": "Bg Stage",
-        "canonical": "oklch(5% 0.03 310)",
+        "canonical": "oklch(14% 0.008 70)",
         "tonalRamp": [
-          "oklch(5% 0.03 310)",
-          "oklch(8% 0.04 310)",
-          "oklch(15% 0.07 310)",
-          "oklch(20% 0.10 310)",
-          "oklch(28% 0.12 310)",
-          "oklch(45% 0.10 310)",
-          "oklch(72% 0.06 310)",
-          "oklch(94% 0.02 310)"
+          "oklch(8% 0.005 70)",
+          "oklch(14% 0.008 70)",
+          "oklch(18% 0.010 70)",
+          "oklch(22% 0.012 70)",
+          "oklch(26% 0.012 70)",
+          "oklch(32% 0.014 70)",
+          "oklch(48% 0.014 70)",
+          "oklch(82% 0.008 70)"
         ]
       },
       "bg-room": {
-        "role": "neutral",
+        "role": "neutral-chassis",
         "displayName": "Bg Room",
-        "canonical": "oklch(8% 0.04 310)",
+        "canonical": "oklch(18% 0.010 70)",
         "tonalRamp": [
-          "oklch(5% 0.03 310)",
-          "oklch(8% 0.04 310)",
-          "oklch(15% 0.07 310)",
-          "oklch(22% 0.08 310)",
-          "oklch(32% 0.09 310)",
-          "oklch(50% 0.08 310)",
-          "oklch(75% 0.05 310)",
-          "oklch(94% 0.02 310)"
+          "oklch(8% 0.005 70)",
+          "oklch(14% 0.008 70)",
+          "oklch(18% 0.010 70)",
+          "oklch(22% 0.012 70)",
+          "oklch(26% 0.012 70)",
+          "oklch(32% 0.014 70)",
+          "oklch(48% 0.014 70)",
+          "oklch(82% 0.008 70)"
         ]
       },
       "surface-card": {
-        "role": "neutral",
+        "role": "neutral-chassis",
         "displayName": "Surface Card",
-        "canonical": "oklch(15% 0.07 310)",
-        "tonalRamp": [
-          "oklch(8% 0.04 310)",
-          "oklch(15% 0.07 310)",
-          "oklch(22% 0.08 310)",
-          "oklch(30% 0.10 310)",
-          "oklch(42% 0.11 310)",
-          "oklch(58% 0.10 310)",
-          "oklch(78% 0.06 310)",
-          "oklch(94% 0.02 310)"
-        ]
+        "canonical": "oklch(22% 0.012 70)"
       },
       "surface-raised": {
-        "role": "neutral",
+        "role": "neutral-chassis",
         "displayName": "Surface Raised",
-        "canonical": "oklch(20% 0.10 310)",
-        "tonalRamp": [
-          "oklch(10% 0.05 310)",
-          "oklch(20% 0.10 310)",
-          "oklch(28% 0.12 310)",
-          "oklch(38% 0.13 310)",
-          "oklch(50% 0.13 310)",
-          "oklch(66% 0.10 310)",
-          "oklch(82% 0.06 310)",
-          "oklch(94% 0.02 310)"
-        ]
+        "canonical": "oklch(26% 0.012 70)"
       },
       "surface-hover": {
-        "role": "neutral",
+        "role": "neutral-chassis",
         "displayName": "Surface Hover",
-        "canonical": "oklch(28% 0.12 310)",
-        "tonalRamp": [
-          "oklch(12% 0.06 310)",
-          "oklch(22% 0.10 310)",
-          "oklch(28% 0.12 310)",
-          "oklch(40% 0.13 310)",
-          "oklch(54% 0.13 310)",
-          "oklch(70% 0.10 310)",
-          "oklch(84% 0.06 310)",
-          "oklch(94% 0.02 310)"
-        ]
+        "canonical": "oklch(32% 0.014 70)"
       },
       "border-hairline": {
-        "role": "neutral",
+        "role": "neutral-chassis",
         "displayName": "Border Hairline",
-        "canonical": "oklch(22% 0.08 310)",
+        "canonical": "oklch(34% 0.010 70)"
+      },
+      "display-bezel": {
+        "role": "neutral-display",
+        "displayName": "Display Bezel",
+        "canonical": "oklch(8% 0.005 70)",
         "tonalRamp": [
-          "oklch(10% 0.04 310)",
-          "oklch(22% 0.08 310)",
-          "oklch(34% 0.10 310)",
-          "oklch(46% 0.10 310)",
-          "oklch(60% 0.08 310)",
-          "oklch(74% 0.06 310)",
-          "oklch(86% 0.04 310)",
-          "oklch(95% 0.02 310)"
+          "oklch(2% 0.002 70)",
+          "oklch(5% 0.005 70)",
+          "oklch(8% 0.005 70)",
+          "oklch(14% 0.005 70)",
+          "oklch(20% 0.005 70)",
+          "oklch(28% 0.005 70)",
+          "oklch(40% 0.005 70)",
+          "oklch(60% 0.005 70)"
         ]
+      },
+      "display-screen": {
+        "role": "neutral-display",
+        "displayName": "Display Screen",
+        "canonical": "oklch(5% 0.005 70)"
+      },
+      "display-hairline": {
+        "role": "neutral-display",
+        "displayName": "Display Hairline",
+        "canonical": "oklch(24% 0.005 70)"
       },
       "text-key": {
-        "role": "neutral",
+        "role": "text-on-chassis",
         "displayName": "Text Key",
-        "canonical": "oklch(94% 0.02 310)",
-        "tonalRamp": [
-          "oklch(20% 0.04 310)",
-          "oklch(40% 0.05 310)",
-          "oklch(58% 0.06 310)",
-          "oklch(72% 0.05 310)",
-          "oklch(82% 0.04 310)",
-          "oklch(88% 0.03 310)",
-          "oklch(94% 0.02 310)",
-          "oklch(98% 0.01 310)"
-        ]
+        "canonical": "oklch(95% 0.005 70)"
       },
       "text-body": {
-        "role": "neutral",
+        "role": "text-on-chassis",
         "displayName": "Text Body",
-        "canonical": "oklch(85% 0.03 310)",
-        "tonalRamp": [
-          "oklch(20% 0.04 310)",
-          "oklch(38% 0.06 310)",
-          "oklch(54% 0.06 310)",
-          "oklch(68% 0.05 310)",
-          "oklch(78% 0.04 310)",
-          "oklch(85% 0.03 310)",
-          "oklch(91% 0.02 310)",
-          "oklch(96% 0.01 310)"
-        ]
+        "canonical": "oklch(82% 0.008 70)"
       },
       "text-muted": {
-        "role": "neutral",
+        "role": "text-on-chassis",
         "displayName": "Text Muted",
-        "canonical": "oklch(72% 0.06 310)",
-        "tonalRamp": [
-          "oklch(18% 0.06 310)",
-          "oklch(32% 0.08 310)",
-          "oklch(48% 0.08 310)",
-          "oklch(60% 0.07 310)",
-          "oklch(72% 0.06 310)",
-          "oklch(82% 0.05 310)",
-          "oklch(90% 0.03 310)",
-          "oklch(96% 0.02 310)"
-        ]
+        "canonical": "oklch(62% 0.012 70)"
       },
       "text-faint": {
-        "role": "neutral",
+        "role": "text-on-chassis",
         "displayName": "Text Faint",
-        "canonical": "oklch(55% 0.09 310)",
-        "tonalRamp": [
-          "oklch(15% 0.06 310)",
-          "oklch(28% 0.09 310)",
-          "oklch(42% 0.10 310)",
-          "oklch(55% 0.09 310)",
-          "oklch(68% 0.08 310)",
-          "oklch(80% 0.06 310)",
-          "oklch(90% 0.04 310)",
-          "oklch(96% 0.02 310)"
-        ]
+        "canonical": "oklch(48% 0.014 70)"
+      },
+      "text-on-display": {
+        "role": "text-on-display",
+        "displayName": "Text On Display",
+        "canonical": "oklch(92% 0.005 70)"
       },
       "state-ok": {
-        "role": "tertiary",
+        "role": "state",
         "displayName": "State OK",
-        "canonical": "oklch(85% 0.18 155)",
+        "canonical": "oklch(65% 0.10 145)",
         "tonalRamp": [
-          "oklch(20% 0.10 155)",
-          "oklch(34% 0.16 155)",
-          "oklch(50% 0.20 155)",
-          "oklch(64% 0.20 155)",
-          "oklch(74% 0.20 155)",
-          "oklch(85% 0.18 155)",
-          "oklch(92% 0.10 155)",
-          "oklch(97% 0.04 155)"
+          "oklch(15% 0.05 145)",
+          "oklch(28% 0.07 145)",
+          "oklch(45% 0.09 145)",
+          "oklch(65% 0.10 145)",
+          "oklch(76% 0.09 145)",
+          "oklch(85% 0.07 145)",
+          "oklch(92% 0.04 145)",
+          "oklch(96% 0.02 145)"
         ]
       },
       "state-danger": {
-        "role": "tertiary",
+        "role": "state",
         "displayName": "State Danger",
-        "canonical": "oklch(70% 0.21 25)",
+        "canonical": "oklch(60% 0.18 25)",
         "tonalRamp": [
           "oklch(15% 0.07 25)",
           "oklch(28% 0.12 25)",
-          "oklch(42% 0.18 25)",
-          "oklch(56% 0.21 25)",
-          "oklch(70% 0.21 25)",
-          "oklch(82% 0.15 25)",
-          "oklch(91% 0.07 25)",
+          "oklch(42% 0.16 25)",
+          "oklch(60% 0.18 25)",
+          "oklch(72% 0.16 25)",
+          "oklch(82% 0.12 25)",
+          "oklch(90% 0.07 25)",
           "oklch(96% 0.03 25)"
         ]
       },
       "state-info": {
-        "role": "tertiary",
+        "role": "state",
         "displayName": "State Info",
-        "canonical": "oklch(72% 0.15 220)",
+        "canonical": "oklch(60% 0.10 235)",
         "tonalRamp": [
-          "oklch(15% 0.06 220)",
-          "oklch(28% 0.10 220)",
-          "oklch(42% 0.14 220)",
-          "oklch(56% 0.16 220)",
-          "oklch(72% 0.15 220)",
-          "oklch(82% 0.10 220)",
-          "oklch(91% 0.05 220)",
-          "oklch(96% 0.02 220)"
+          "oklch(15% 0.05 235)",
+          "oklch(28% 0.07 235)",
+          "oklch(42% 0.09 235)",
+          "oklch(60% 0.10 235)",
+          "oklch(72% 0.09 235)",
+          "oklch(82% 0.07 235)",
+          "oklch(90% 0.04 235)",
+          "oklch(96% 0.02 235)"
         ]
       },
       "stage-osc": {
-        "role": "tertiary",
+        "role": "stage-flow",
         "displayName": "Stage OSC",
-        "canonical": "oklch(75% 0.15 70)",
+        "canonical": "oklch(68% 0.09 65)",
         "tonalRamp": [
-          "oklch(15% 0.06 70)",
-          "oklch(28% 0.10 70)",
-          "oklch(42% 0.13 70)",
-          "oklch(58% 0.15 70)",
-          "oklch(75% 0.15 70)",
-          "oklch(85% 0.11 70)",
-          "oklch(92% 0.06 70)",
-          "oklch(97% 0.03 70)"
+          "oklch(15% 0.04 65)",
+          "oklch(28% 0.06 65)",
+          "oklch(45% 0.08 65)",
+          "oklch(58% 0.09 65)",
+          "oklch(68% 0.09 65)",
+          "oklch(80% 0.07 65)",
+          "oklch(90% 0.04 65)",
+          "oklch(96% 0.02 65)"
         ]
       },
       "stage-filter": {
-        "role": "tertiary",
+        "role": "stage-flow",
         "displayName": "Stage Filter",
-        "canonical": "oklch(68% 0.20 290)",
+        "canonical": "oklch(60% 0.13 5)",
         "tonalRamp": [
-          "oklch(15% 0.06 290)",
-          "oklch(28% 0.12 290)",
-          "oklch(42% 0.17 290)",
-          "oklch(54% 0.20 290)",
-          "oklch(68% 0.20 290)",
-          "oklch(80% 0.15 290)",
-          "oklch(90% 0.07 290)",
-          "oklch(96% 0.03 290)"
+          "oklch(15% 0.06 5)",
+          "oklch(28% 0.09 5)",
+          "oklch(42% 0.12 5)",
+          "oklch(52% 0.13 5)",
+          "oklch(60% 0.13 5)",
+          "oklch(75% 0.10 5)",
+          "oklch(88% 0.05 5)",
+          "oklch(96% 0.02 5)"
         ]
       },
       "stage-fx": {
-        "role": "tertiary",
+        "role": "stage-flow",
         "displayName": "Stage FX",
-        "canonical": "oklch(72% 0.13 195)",
+        "canonical": "oklch(64% 0.08 220)",
         "tonalRamp": [
-          "oklch(15% 0.05 195)",
-          "oklch(28% 0.08 195)",
-          "oklch(42% 0.11 195)",
-          "oklch(56% 0.13 195)",
-          "oklch(72% 0.13 195)",
-          "oklch(83% 0.10 195)",
-          "oklch(91% 0.06 195)",
-          "oklch(96% 0.02 195)"
+          "oklch(15% 0.04 220)",
+          "oklch(28% 0.06 220)",
+          "oklch(45% 0.07 220)",
+          "oklch(55% 0.08 220)",
+          "oklch(64% 0.08 220)",
+          "oklch(78% 0.06 220)",
+          "oklch(88% 0.03 220)",
+          "oklch(96% 0.01 220)"
         ]
+      },
+      "knob-cap-white": {
+        "role": "hardware",
+        "displayName": "Knob Cap White",
+        "canonical": "oklch(94% 0.005 70)"
+      },
+      "knob-cap-black": {
+        "role": "hardware",
+        "displayName": "Knob Cap Black",
+        "canonical": "oklch(10% 0.008 70)"
       }
     },
     "typographyMeta": {
       "headline": {
         "displayName": "Headline",
-        "purpose": "Modal title only (help panel). The largest text in the system at 13px. Used once per modal context, never on the main app surface."
+        "purpose": "Modal title only (help panel). The largest text in the system at 13px. Always rendered on a display surface; uses Text On Display."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Effect-card title (Voronoi, Cellular, ASCII). The card name. Always solid color, never gradient."
+        "purpose": "Effect-card title (Voronoi, Cellular, ASCII). The card name on a chassis surface. Always solid color, never gradient."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Default body copy. Action button label, toast body, help-panel list items. Cap line length at 60ch in any prose surface."
+        "purpose": "Default body copy. Action button label (chassis), toast body (display), help-panel list items (display). Cap line length at 60ch in any prose surface."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Section labels, stage dividers, icon-button text, logo. Letter-spacing widens with importance: 0.10em for icon-btn, 0.14em for section-label, 0.22em for stage-divider. Stage-divider labels also carry stage-flow color (amber / violet / teal)."
+        "purpose": "Section labels, stage dividers, icon-button text, logo. Letter-spacing widens with importance: 0.12em for icon-btn, 0.16em for section-label, 0.24em for stage-divider. Stage-divider labels also carry stage-flow color (low-chroma amber / plum-rose / slate-teal)."
       },
       "mono-num": {
         "displayName": "Mono-Num",
@@ -315,13 +260,23 @@
     "shadows": [
       {
         "name": "modal-lift",
-        "value": "0 12px 48px oklch(5% 0.03 310 / 0.6)",
-        "purpose": "Help panel and drop-zone overlay only. The single justified ambient shadow. Modals are the only chrome elements allowed depth-via-shadow."
+        "value": "0 12px 48px oklch(0% 0 0 / 0.55)",
+        "purpose": "Help panel and drop-zone overlay only. The single justified strong ambient shadow. Pure neutral black at 55% alpha; reads as a true cast shadow against the dark warm-grey chassis without colored bias."
+      },
+      {
+        "name": "float-drop-toast",
+        "value": "0 4px 16px oklch(0% 0 0 / 0.4)",
+        "purpose": "Low cast shadow for toast and video controls. These transient surfaces hover over a different surface family than their own and need a small structural cue of separation. Smaller and weaker than modal-lift because they're popovers, not modals."
+      },
+      {
+        "name": "float-drop-tooltip",
+        "value": "0 2px 10px oklch(0% 0 0 / 0.45)",
+        "purpose": "Even lower cast shadow for the cursor-following help-tooltip. Sits between the chassis and any surface it floats over."
       },
       {
         "name": "focus-ring",
-        "value": "outline: 2px solid #f72585; outline-offset: 2px",
-        "purpose": "Keyboard focus indicator. Always pink, always 2px, always with 2px offset. Never use box-shadow as a focus indicator."
+        "value": "outline: 2px solid #ff5722; outline-offset: 2px",
+        "purpose": "Keyboard focus indicator. Always orange, always 2px, always with 2px offset. Never use box-shadow as a focus indicator."
       }
     ],
     "motion": [
@@ -364,17 +319,17 @@
       "name": "Knob",
       "kind": "custom",
       "refersTo": "knob",
-      "description": "Signature instrument component. 40x40 SVG with 270deg arc, hairline track, gradient pink->purple->indigo arc fill, white pointer, value tooltip on hover.",
-      "html": "<div class=\"ds-knob\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"1\" aria-valuenow=\"0.65\" aria-valuetext=\"0.65\" aria-label=\"Knob example\"><svg class=\"ds-knob-svg\" viewBox=\"0 0 48 48\" width=\"40\" height=\"40\" aria-hidden=\"true\"><defs><linearGradient id=\"dsKnobGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f72585\"/><stop offset=\"50%\" stop-color=\"#7e2bc7\"/><stop offset=\"100%\" stop-color=\"#4361ee\"/></linearGradient></defs><circle class=\"ds-knob-track\" cx=\"24\" cy=\"24\" r=\"18\" pathLength=\"100\" stroke-dasharray=\"75 25\" stroke-dashoffset=\"0\" transform=\"rotate(135 24 24)\"/><circle class=\"ds-knob-arc\" cx=\"24\" cy=\"24\" r=\"18\" pathLength=\"100\" stroke-dasharray=\"75 25\" stroke-dashoffset=\"26\" transform=\"rotate(135 24 24)\"/><circle class=\"ds-knob-cap\" cx=\"24\" cy=\"24\" r=\"11\"/><line class=\"ds-knob-pointer\" x1=\"24\" y1=\"24\" x2=\"24\" y2=\"11\" transform=\"rotate(40 24 24)\"/></svg><span class=\"ds-knob-label\">Threshold</span><span class=\"ds-knob-val\">0.65</span></div>",
-      "css": ".ds-knob { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 3px; cursor: ns-resize; user-select: none; outline: none; padding: 2px 4px; border-radius: 6px; transition: background 150ms cubic-bezier(0.25,1,0.5,1); color: oklch(72% 0.06 310); font-family: Inter, sans-serif; } .ds-knob:hover { background: rgba(247, 37, 133, 0.05); } .ds-knob:focus-visible { background: rgba(247, 37, 133, 0.08); outline: 2px solid #f72585; outline-offset: 2px; } .ds-knob-svg { width: 40px; height: 40px; display: block; overflow: visible; } .ds-knob-track { fill: none; stroke: oklch(22% 0.08 310); stroke-width: 3; stroke-linecap: round; } .ds-knob-arc { fill: none; stroke: url(#dsKnobGrad); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 50ms linear; } .ds-knob-pointer { stroke: oklch(94% 0.02 310); stroke-width: 2; stroke-linecap: round; } .ds-knob-cap { fill: oklch(8% 0.04 310); stroke: oklch(22% 0.08 310); stroke-width: 1; } .ds-knob-label { font-size: 9px; font-weight: 500; letter-spacing: 0.04em; color: oklch(72% 0.06 310); text-transform: uppercase; text-align: center; line-height: 1.15; max-width: 100%; white-space: normal; overflow-wrap: break-word; } .ds-knob-val { font-size: 10px; color: oklch(94% 0.02 310); font-variant-numeric: tabular-nums; font-weight: 600; opacity: 0; transition: opacity 120ms cubic-bezier(0.25,1,0.5,1); position: absolute; bottom: -16px; background: oklch(15% 0.07 310); padding: 2px 7px; border-radius: 4px; border: 1px solid #f72585; white-space: nowrap; pointer-events: none; } .ds-knob:hover .ds-knob-val, .ds-knob:focus-visible .ds-knob-val { opacity: 1; }"
+      "description": "Signature instrument component. 40x40 SVG with 270deg arc, hairline track, single-color white→orange gradient arc fill, white solid plastic cap, dark pointer. No glow, no drop-shadow. Octatrack/Push-style restraint on a dark warm-grey chassis.",
+      "html": "<div class=\"ds-knob\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"1\" aria-valuenow=\"0.65\" aria-valuetext=\"0.65\" aria-label=\"Knob example\"><svg class=\"ds-knob-svg\" viewBox=\"0 0 48 48\" width=\"40\" height=\"40\" aria-hidden=\"true\"><defs><linearGradient id=\"dsKnobGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f0ede8\"/><stop offset=\"100%\" stop-color=\"#ff5722\"/></linearGradient></defs><circle class=\"ds-knob-track\" cx=\"24\" cy=\"24\" r=\"18\" pathLength=\"100\" stroke-dasharray=\"75 25\" stroke-dashoffset=\"0\" transform=\"rotate(135 24 24)\"/><circle class=\"ds-knob-arc\" cx=\"24\" cy=\"24\" r=\"18\" pathLength=\"100\" stroke-dasharray=\"75 25\" stroke-dashoffset=\"26\" transform=\"rotate(135 24 24)\"/><circle class=\"ds-knob-cap\" cx=\"24\" cy=\"24\" r=\"14\"/><line class=\"ds-knob-pointer\" x1=\"24\" y1=\"24\" x2=\"24\" y2=\"11\" transform=\"rotate(40 24 24)\"/></svg><span class=\"ds-knob-label\">Threshold</span><span class=\"ds-knob-val\">0.65</span></div>",
+      "css": ".ds-knob { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 3px; cursor: ns-resize; user-select: none; outline: none; padding: 2px 4px; border-radius: 5px; transition: background 150ms cubic-bezier(0.25,1,0.5,1); color: oklch(62% 0.012 70); font-family: Inter, sans-serif; } .ds-knob:hover { background: oklch(70% 0.21 45 / 0.10); } .ds-knob:focus-visible { background: oklch(70% 0.21 45 / 0.14); outline: 2px solid #ff5722; outline-offset: 2px; } .ds-knob-svg { width: 40px; height: 40px; display: block; overflow: visible; } .ds-knob-track { fill: none; stroke: oklch(34% 0.010 70); stroke-width: 3; stroke-linecap: round; } .ds-knob-arc { fill: none; stroke: url(#dsKnobGrad); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 50ms linear; } .ds-knob-pointer { stroke: oklch(10% 0.008 70); stroke-width: 2; stroke-linecap: round; } .ds-knob-cap { fill: oklch(94% 0.005 70); stroke: oklch(10% 0.008 70); stroke-width: 1; stroke-opacity: 0.4; } .ds-knob-label { font-size: 9px; font-weight: 500; letter-spacing: 0.04em; color: oklch(62% 0.012 70); text-transform: uppercase; text-align: center; line-height: 1.15; max-width: 100%; white-space: normal; overflow-wrap: break-word; } .ds-knob-val { font-size: 10px; color: oklch(95% 0.005 70); font-variant-numeric: tabular-nums; font-weight: 600; opacity: 0; transition: opacity 120ms cubic-bezier(0.25,1,0.5,1); position: absolute; bottom: -16px; background: oklch(22% 0.012 70); padding: 2px 7px; border-radius: 3px; border: 1px solid #ff5722; white-space: nowrap; pointer-events: none; } .ds-knob:hover .ds-knob-val, .ds-knob:focus-visible .ds-knob-val { opacity: 1; }"
     },
     {
       "name": "Toggle Button (active)",
       "kind": "button",
       "refersTo": "toggle-active",
-      "description": "Active radio state. Solid pink-signal background, white text. Exactly one per radio group at any time.",
+      "description": "Active radio state. Solid orange-signal background, near-black text (more legible than white on saturated orange). Exactly one per radio group at any time.",
       "html": "<button class=\"ds-toggle ds-toggle-active\" type=\"button\" aria-checked=\"true\" role=\"radio\">Motion</button>",
-      "css": ".ds-toggle { background: oklch(20% 0.10 310); border: 1px solid oklch(22% 0.08 310); color: oklch(85% 0.03 310); padding: 6px 8px; font-family: Inter, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; min-height: 28px; min-width: 60px; text-align: center; border-radius: 5px; transition: background 150ms cubic-bezier(0.25,1,0.5,1), color 150ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1); white-space: nowrap; } .ds-toggle:hover { background: oklch(28% 0.12 310); color: oklch(94% 0.02 310); border-color: #f72585; } .ds-toggle:focus-visible { outline: 2px solid #f72585; outline-offset: 2px; } .ds-toggle-active { background: #f72585; color: oklch(94% 0.02 310); border-color: transparent; font-weight: 700; } .ds-toggle-active:hover { background: #f72585; }"
+      "css": ".ds-toggle { background: oklch(26% 0.012 70); border: 1px solid oklch(34% 0.010 70); color: oklch(82% 0.008 70); padding: 6px 8px; font-family: Inter, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; min-height: 28px; min-width: 60px; text-align: center; border-radius: 4px; transition: background 150ms cubic-bezier(0.25,1,0.5,1), color 150ms cubic-bezier(0.25,1,0.5,1); white-space: nowrap; } .ds-toggle:hover { background: oklch(32% 0.014 70); color: oklch(95% 0.005 70); } .ds-toggle:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; } .ds-toggle-active { background: #ff5722; color: oklch(15% 0.05 30); border-color: transparent; font-weight: 700; } .ds-toggle-active:hover { background: #ff5722; }"
     },
     {
       "name": "Toggle Button (inactive)",
@@ -382,105 +337,119 @@
       "refersTo": "toggle-inactive",
       "description": "Inactive radio state. Surface-raised background, body text. The non-selected siblings of the active toggle.",
       "html": "<button class=\"ds-toggle\" type=\"button\" aria-checked=\"false\" role=\"radio\">Luma</button>",
-      "css": ".ds-toggle { background: oklch(20% 0.10 310); border: 1px solid oklch(22% 0.08 310); color: oklch(85% 0.03 310); padding: 6px 8px; font-family: Inter, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; min-height: 28px; min-width: 60px; text-align: center; border-radius: 5px; transition: background 150ms cubic-bezier(0.25,1,0.5,1), color 150ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1); white-space: nowrap; } .ds-toggle:hover { background: oklch(28% 0.12 310); color: oklch(94% 0.02 310); border-color: #f72585; } .ds-toggle:focus-visible { outline: 2px solid #f72585; outline-offset: 2px; }"
+      "css": ".ds-toggle { background: oklch(26% 0.012 70); border: 1px solid oklch(34% 0.010 70); color: oklch(82% 0.008 70); padding: 6px 8px; font-family: Inter, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; min-height: 28px; min-width: 60px; text-align: center; border-radius: 4px; transition: background 150ms cubic-bezier(0.25,1,0.5,1), color 150ms cubic-bezier(0.25,1,0.5,1); white-space: nowrap; } .ds-toggle:hover { background: oklch(32% 0.014 70); color: oklch(95% 0.005 70); } .ds-toggle:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; }"
     },
     {
       "name": "Filter Button (signature swatch)",
       "kind": "button",
       "refersTo": null,
-      "description": "Per-effect picker. Full-bleed gradient swatch approximating the effect's output palette. Label sits over the swatch with text-shadow. Active state = 2px pink border, no glow.",
+      "description": "Per-effect picker. Full-bleed gradient swatch approximating the effect's output palette. Label sits over the swatch with text-shadow. Active state = 2px orange border, no glow. Filter swatches are exempt from The Two-Color Rule because they preview canvas content.",
       "html": "<button class=\"ds-filter-btn ds-filter-thermal\" type=\"button\" aria-checked=\"false\" role=\"radio\"><span>Thermal</span></button>",
-      "css": ".ds-filter-btn { position: relative; padding: 0; min-height: 42px; width: 110px; border: 1px solid oklch(22% 0.08 310); color: oklch(94% 0.02 310); cursor: pointer; border-radius: 5px; overflow: hidden; font-family: Inter, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 4px rgba(0,0,0,0.6); transition: border-color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-filter-btn::before { content: \"\"; position: absolute; inset: 0; background: linear-gradient(180deg, oklch(5% 0.03 310 / 0.15), oklch(5% 0.03 310 / 0.6)); z-index: 1; transition: background 150ms cubic-bezier(0.25,1,0.5,1); } .ds-filter-btn > * { position: relative; z-index: 2; } .ds-filter-thermal { background: linear-gradient(90deg, #000, #6a0dad, #ff4500, #ffea00, #fff); } .ds-filter-btn:hover { border-color: #f72585; } .ds-filter-btn:focus-visible { outline: 2px solid #f72585; outline-offset: 2px; } .ds-filter-btn[aria-checked=\"true\"] { border: 2px solid #f72585; font-weight: 700; } .ds-filter-btn[aria-checked=\"true\"]::before { background: linear-gradient(180deg, oklch(5% 0.03 310 / 0.05), oklch(5% 0.03 310 / 0.45)); }"
+      "css": ".ds-filter-btn { position: relative; padding: 0; min-height: 42px; width: 110px; border: 1px solid oklch(34% 0.010 70); color: oklch(92% 0.005 70); cursor: pointer; border-radius: 4px; overflow: hidden; font-family: Inter, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 4px rgba(0,0,0,0.6); transition: border-color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-filter-btn::before { content: \"\"; position: absolute; inset: 0; background: linear-gradient(180deg, oklch(0% 0 0 / 0.20), oklch(0% 0 0 / 0.65)); z-index: 1; transition: background 150ms cubic-bezier(0.25,1,0.5,1); } .ds-filter-btn > * { position: relative; z-index: 2; } .ds-filter-thermal { background: linear-gradient(90deg, #000, #6a0dad, #ff4500, #ffea00, #fff); } .ds-filter-btn:hover::before { background: linear-gradient(180deg, oklch(0% 0 0 / 0.10), oklch(0% 0 0 / 0.55)); } .ds-filter-btn:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; } .ds-filter-btn[aria-checked=\"true\"] { border: 2px solid #ff5722; font-weight: 700; } .ds-filter-btn[aria-checked=\"true\"]::before { background: linear-gradient(180deg, oklch(0% 0 0 / 0.05), oklch(0% 0 0 / 0.45)); }"
     },
     {
       "name": "Action Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Deliberate-action button. Upload Video, Open Camera. The longer text + 8x12 padding signals 'this commits to a multi-second action'.",
+      "description": "Deliberate-action button. Upload Video, Open Camera. The longer text plus 8x12 padding signals a multi-second commitment. Hover lightens (dark-mode convention).",
       "html": "<button class=\"ds-action-btn\" type=\"button\">Upload Video</button>",
-      "css": ".ds-action-btn { background: oklch(20% 0.10 310); border: 1px solid oklch(22% 0.08 310); color: oklch(94% 0.02 310); padding: 8px 12px; font-family: Inter, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; cursor: pointer; text-align: left; min-height: 30px; border-radius: 6px; transition: background 150ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-action-btn:hover { background: oklch(28% 0.12 310); border-color: #f72585; } .ds-action-btn:focus-visible { outline: 2px solid #f72585; outline-offset: 2px; } .ds-action-btn:active { transform: translateY(1px); } .ds-action-btn[disabled] { opacity: 0.4; cursor: not-allowed; }"
+      "css": ".ds-action-btn { background: oklch(26% 0.012 70); border: 1px solid oklch(34% 0.010 70); color: oklch(95% 0.005 70); padding: 8px 12px; font-family: Inter, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; cursor: pointer; text-align: left; min-height: 30px; border-radius: 4px; transition: background 150ms cubic-bezier(0.25,1,0.5,1); } .ds-action-btn:hover { background: oklch(32% 0.014 70); } .ds-action-btn:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; } .ds-action-btn:active { transform: translateY(1px); } .ds-action-btn[disabled] { opacity: 0.4; cursor: not-allowed; }"
     },
     {
-      "name": "Icon Button",
+      "name": "Icon Button (chassis)",
       "kind": "button",
       "refersTo": "button-icon",
-      "description": "Compact button. Reset, Snap, FPS, ?. Uppercase label, high-density. Sidebar header and canvas top bar only.",
+      "description": "Compact button on chassis surfaces. Reset (sidebar header). Uppercase label, high-density. Light text on surface-raised.",
       "html": "<button class=\"ds-icon-btn\" type=\"button\">Reset</button>",
-      "css": ".ds-icon-btn { background: oklch(20% 0.10 310); border: 1px solid oklch(22% 0.08 310); color: oklch(94% 0.02 310); font-family: Inter, sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 10px; cursor: pointer; min-height: 26px; border-radius: 4px; transition: background 150ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1), color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-icon-btn:hover { background: oklch(28% 0.12 310); border-color: #f72585; } .ds-icon-btn:focus-visible { outline: 2px solid #f72585; outline-offset: 2px; } .ds-icon-btn:active { transform: translateY(1px); }"
+      "css": ".ds-icon-btn { background: oklch(26% 0.012 70); border: 1px solid oklch(34% 0.010 70); color: oklch(95% 0.005 70); font-family: Inter, sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 10px; cursor: pointer; min-height: 26px; border-radius: 3px; transition: background 150ms cubic-bezier(0.25,1,0.5,1); } .ds-icon-btn:hover { background: oklch(32% 0.014 70); } .ds-icon-btn:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; } .ds-icon-btn:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Icon Button (display)",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "Compact button on display surfaces. Snap, FPS, ? in canvas top bar. Light text on display-bezel. Sibling of Icon Button (chassis); switches surface family based on context per The Display-Vs-Chassis Rule.",
+      "html": "<button class=\"ds-icon-btn-display\" type=\"button\">Snap</button>",
+      "css": ".ds-icon-btn-display { background: oklch(8% 0.005 70); border: 1px solid oklch(24% 0.005 70); color: oklch(92% 0.005 70); font-family: Inter, sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 10px; cursor: pointer; min-height: 26px; border-radius: 3px; transition: background 150ms cubic-bezier(0.25,1,0.5,1); } .ds-icon-btn-display:hover { background: oklch(12% 0.005 70); } .ds-icon-btn-display:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; }"
     },
     {
       "name": "Stage Divider",
       "kind": "custom",
       "refersTo": null,
-      "description": "Sidebar section divider with stage-flow color coding. Label tints by stage (amber OSC, violet FILTER, teal FX); hairline rule line stays neutral. The eye reads warm-to-cool top-to-bottom as signal direction.",
-      "html": "<div style=\"display:flex;flex-direction:column;gap:6px;width:240px;background:oklch(8% 0.04 310);padding:0 16px 12px;\"><div class=\"ds-divider\" data-stage=\"osc\">OSC <span class=\"ds-divider-sub\">source · structure</span></div><div class=\"ds-divider\" data-stage=\"filter\">FILTER <span class=\"ds-divider-sub\">color</span></div><div class=\"ds-divider\" data-stage=\"fx\">FX <span class=\"ds-divider-sub\">overlay · output</span></div></div>",
-      "css": ".ds-divider { display: flex; align-items: center; gap: 8px; padding: 16px 0 6px; font-family: Inter, sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(72% 0.06 310); } .ds-divider[data-stage=\"osc\"]    { color: oklch(75% 0.15 70); } .ds-divider[data-stage=\"filter\"] { color: oklch(68% 0.20 290); } .ds-divider[data-stage=\"fx\"]     { color: oklch(72% 0.13 195); } .ds-divider::after { content: \"\"; flex: 1; height: 1px; background: oklch(22% 0.08 310); } .ds-divider-sub { font-size: 8px; font-weight: 500; letter-spacing: 0.12em; color: oklch(55% 0.09 310); text-transform: none; }"
+      "description": "Sidebar section divider with low-chroma stage-flow color coding. Label tints by stage (amber OSC, plum-rose FILTER, slate-teal FX); hairline rule line stays neutral. The eye reads warm-to-cool top-to-bottom as signal direction. Chroma is intentionally low so stage colors never compete with orange-signal.",
+      "html": "<div style=\"display:flex;flex-direction:column;gap:6px;width:240px;background:oklch(18% 0.010 70);padding:0 16px 12px;\"><div class=\"ds-divider\" data-stage=\"osc\">OSC <span class=\"ds-divider-sub\">source · structure</span></div><div class=\"ds-divider\" data-stage=\"filter\">FILTER <span class=\"ds-divider-sub\">color</span></div><div class=\"ds-divider\" data-stage=\"fx\">FX <span class=\"ds-divider-sub\">overlay · output</span></div></div>",
+      "css": ".ds-divider { display: flex; align-items: center; gap: 8px; padding: 16px 0 6px; font-family: Inter, sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: oklch(62% 0.012 70); } .ds-divider[data-stage=\"osc\"]    { color: oklch(68% 0.09 65); } .ds-divider[data-stage=\"filter\"] { color: oklch(60% 0.13 5); } .ds-divider[data-stage=\"fx\"]     { color: oklch(64% 0.08 220); } .ds-divider::after { content: \"\"; flex: 1; height: 1px; background: oklch(34% 0.010 70); } .ds-divider-sub { font-size: 8px; font-weight: 500; letter-spacing: 0.12em; color: oklch(48% 0.014 70); text-transform: none; }"
     },
     {
       "name": "Effect Card",
       "kind": "card",
       "refersTo": "card-effect",
-      "description": "Per-effect knob container. Solid surface-card background (NOT glass), 1px hairline border, 2px pink top accent rendered via ::before to indicate active filter context.",
+      "description": "Per-effect knob container. Surface-card background (one tonal step LIGHTER than chassis bg-room — 'raised' reads as lighter in this dark palette, dark-mode convention), 1px hairline border, 2px orange top accent rendered via ::before to indicate active filter context.",
       "html": "<section class=\"ds-effect-card\" aria-label=\"Voronoi parameters\"><div class=\"ds-effect-card-header\"><div class=\"ds-effect-card-title\">Voronoi</div><button class=\"ds-card-reset\" type=\"button\" aria-label=\"Reset Voronoi knobs\">×</button></div><div class=\"ds-card-body\">Knob grid would render here.</div></section>",
-      "css": ".ds-effect-card { padding: 12px 12px 14px; background: oklch(15% 0.07 310); border: 1px solid oklch(22% 0.08 310); border-radius: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; min-width: 220px; } .ds-effect-card::before { content: \"\"; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #f72585; border-radius: 10px 10px 0 0; } .ds-effect-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ds-effect-card-title { font-family: Inter, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: oklch(94% 0.02 310); } .ds-card-reset { background: transparent; border: 1px solid transparent; color: oklch(55% 0.09 310); font-size: 12px; cursor: pointer; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 3px; line-height: 1; transition: color 150ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-card-reset:hover { color: #f72585; border-color: rgba(247, 37, 133, 0.4); } .ds-card-body { font-family: Inter, sans-serif; font-size: 11px; color: oklch(85% 0.03 310); }"
+      "css": ".ds-effect-card { padding: 12px 12px 14px; background: oklch(22% 0.012 70); border: 1px solid oklch(34% 0.010 70); border-radius: 8px; display: flex; flex-direction: column; gap: 10px; position: relative; min-width: 220px; } .ds-effect-card::before { content: \"\"; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #ff5722; border-radius: 8px 8px 0 0; } .ds-effect-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ds-effect-card-title { font-family: Inter, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(95% 0.005 70); } .ds-card-reset { background: transparent; border: 1px solid transparent; color: oklch(48% 0.014 70); font-size: 12px; cursor: pointer; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 2px; line-height: 1; transition: color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-card-reset:hover { color: #ff5722; } .ds-card-body { font-family: Inter, sans-serif; font-size: 11px; color: oklch(82% 0.008 70); }"
     },
     {
       "name": "Empty Card",
       "kind": "card",
       "refersTo": "empty-card",
-      "description": "Placeholder shown when no effect is selected. Dashed border signals 'empty by design', not 'failed to load'.",
+      "description": "Placeholder shown when no effect is selected. Dashed border signals 'empty by design'. Background is bg-stage (one step DARKER than bg-room) so the empty state recedes into the chassis rather than raising forward.",
       "html": "<div class=\"ds-empty-card\">Pick an effect to shape the signal.</div>",
-      "css": ".ds-empty-card { padding: 18px 14px; border: 1px dashed oklch(22% 0.08 310); background: oklch(8% 0.04 310); border-radius: 10px; text-align: center; font-family: Inter, sans-serif; font-size: 10px; color: oklch(55% 0.09 310); letter-spacing: 0.06em; font-style: italic; min-width: 220px; }"
+      "css": ".ds-empty-card { padding: 18px 14px; border: 1px dashed oklch(34% 0.010 70); background: oklch(14% 0.008 70); border-radius: 8px; text-align: center; font-family: Inter, sans-serif; font-size: 10px; color: oklch(48% 0.014 70); letter-spacing: 0.06em; font-style: italic; min-width: 220px; }"
     },
     {
       "name": "Toast",
       "kind": "custom",
       "refersTo": "toast",
-      "description": "Bottom-center transient notification. Solid background (NOT glass), full 1px border (NOT side-stripe), tone variant by tinting the entire border. Stacks with newer entries below.",
+      "description": "Bottom-center transient notification. Lives on a display surface (display-bezel) with light text — toasts read as a status display floating above the chassis. Tone variant by tinting the entire 1px border (NOT a side-stripe). Carries float-drop-toast cast shadow because it hovers over the chassis (a different surface family).",
       "html": "<div class=\"ds-toast ds-toast-ok\" role=\"status\">Reset to defaults</div>",
-      "css": ".ds-toast { background: oklch(15% 0.07 310); border: 1px solid oklch(22% 0.08 310); color: oklch(94% 0.02 310); padding: 10px 14px; font-family: Inter, sans-serif; font-size: 11px; letter-spacing: 0.03em; line-height: 1.4; border-radius: 6px; max-width: 420px; min-width: 180px; } .ds-toast-ok { border-color: #5be7a6; } .ds-toast-error { border-color: oklch(70% 0.21 25); }"
+      "css": ".ds-toast { background: oklch(8% 0.005 70); border: 1px solid oklch(24% 0.005 70); color: oklch(92% 0.005 70); padding: 10px 14px; font-family: Inter, sans-serif; font-size: 11px; letter-spacing: 0.03em; line-height: 1.4; border-radius: 5px; max-width: 420px; min-width: 180px; box-shadow: 0 4px 16px oklch(0% 0 0 / 0.4); } .ds-toast-ok { border-color: oklch(65% 0.10 145); } .ds-toast-error { border-color: oklch(60% 0.18 25); }"
     },
     {
       "name": "Swatch Button",
       "kind": "chip",
       "refersTo": "swatch-btn",
-      "description": "Overlay-color palette item. 1:1 square, the swatch background IS the color choice. Active = pink border, no glow.",
-      "html": "<div style=\"display:flex;gap:4px;\"><button class=\"ds-swatch-btn ds-swatch-active\" type=\"button\" style=\"background:#f72585\" aria-label=\"Pink\"></button><button class=\"ds-swatch-btn\" type=\"button\" style=\"background:#5be7a6\" aria-label=\"Mint\"></button><button class=\"ds-swatch-btn\" type=\"button\" style=\"background:#4cc9f0\" aria-label=\"Cyan\"></button><button class=\"ds-swatch-btn\" type=\"button\" style=\"background:#ffea00\" aria-label=\"Yellow\"></button></div>",
-      "css": ".ds-swatch-btn { width: 28px; height: 28px; border: 1px solid oklch(22% 0.08 310); border-radius: 4px; cursor: pointer; padding: 0; transition: transform 100ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-swatch-btn:hover { transform: scale(1.1); border-color: oklch(94% 0.02 310); } .ds-swatch-btn:focus-visible { outline: 2px solid #f72585; outline-offset: 2px; } .ds-swatch-active { border-color: #f72585; }"
+      "description": "Overlay-color palette item. 1:1 square, the swatch background IS the color choice (these are user canvas overlay colors, not chrome surfaces, so #000 and #fff are allowed here). Active = orange border, no glow.",
+      "html": "<div style=\"display:flex;gap:4px;\"><button class=\"ds-swatch-btn ds-swatch-active\" type=\"button\" style=\"background:#f0ede8\" aria-label=\"White\"></button><button class=\"ds-swatch-btn\" type=\"button\" style=\"background:#5be7a6\" aria-label=\"Mint\"></button><button class=\"ds-swatch-btn\" type=\"button\" style=\"background:#4cc9f0\" aria-label=\"Cyan\"></button><button class=\"ds-swatch-btn\" type=\"button\" style=\"background:#ffea00\" aria-label=\"Yellow\"></button></div>",
+      "css": ".ds-swatch-btn { width: 28px; height: 28px; border: 1px solid oklch(34% 0.010 70); border-radius: 3px; cursor: pointer; padding: 0; transition: transform 100ms cubic-bezier(0.25,1,0.5,1), border-color 150ms cubic-bezier(0.25,1,0.5,1); } .ds-swatch-btn:hover { transform: scale(1.1); border-color: oklch(95% 0.005 70); } .ds-swatch-btn:focus-visible { outline: 2px solid #ff5722; outline-offset: 2px; } .ds-swatch-active { border-color: #ff5722; }"
     }
   ],
   "narrative": {
-    "northStar": "The Late-Night Patch",
-    "overview": "FluxKit is built for a VJ booth at 1am. The room is dim, the operator is in the work, the canvas is the only thing the eye should land on. Every chrome element earns its visual weight by serving the canvas, not competing with it. Knobs are felt by muscle memory, not read. Pink appears only when something is changing or active; semantic state colors carry meaning; three stage colors carry signal-flow direction across OSC, FILTER, and FX.\n\nThe aesthetic family is browser shader playground crossed with hardware synth UI, with named references to Lumen, Cables.gl, and Ableton Push. FluxKit explicitly rejects three other families it could be mistaken for: generic SaaS dashboard, AI tool cliché, and hobbyist demo.\n\nDensity is high on purpose. Power users need every knob visible at once, newcomers learn the controls by touching them, and there is no tutorial layer to fall back on. The chrome must be tight enough to fit, terse enough to read at a glance, and consistent enough that muscle memory pays off.",
+    "northStar": "The Studio Workbench (dark)",
+    "overview": "FluxKit is built for a workbench in a dim studio. The chassis is dark, restrained, warm-grey graphite. The work — the canvas — sits inside an even darker display embedded in that chassis, the way a screen sits in an Elektron Octatrack body or an Ableton Push 3. The chassis recedes by being a quiet warm grey; the canvas asserts itself by being the deepest surface on the page, framed by a slightly lighter bezel. Orange appears only when something is changing or being touched. Everywhere else, the surface is a neutral warm graphite that the eye relaxes into without strain — a screen that can be looked at for hours without fatigue.\n\nThe aesthetic family is browser shader playground crossed with industrial sampler hardware, with named references to Teenage Engineering K.O. II / K.O. Sidekick (TE chrome language: knobs, type, button shapes), Lumen, Cables.gl, and Ableton Push. Where K.O. II is cream and built for daylight, FluxKit picks the dark sibling aesthetic — Octatrack, Push 3 black, Eurorack — for chassis lightness, because a screen-based instrument lives in a different lighting environment than physical hardware.\n\nFluxKit explicitly rejects three other families it could be mistaken for: generic SaaS dashboard, AI tool cliché, and hobbyist demo.\n\nDensity is high on purpose. Power users need every knob visible at once, newcomers learn the controls by touching them, and there is no tutorial layer to fall back on. The chrome must be tight enough to fit, terse enough to read at a glance, and consistent enough that muscle memory pays off — exactly the discipline a TE or Elektron device runs on.",
     "keyCharacteristics": [
-      "One signal color (pink-signal), reserved for change or active state.",
-      "Three semantic state colors (ok mint, danger coral, info cyan), each with a single role.",
-      "Three stage colors (amber OSC, violet FILTER, teal FX) communicating signal flow.",
-      "One neutral family, every step tinted toward magenta-violet (hue 310) so the eye relaxes in low light.",
-      "Flat surfaces. No backdrop-filter blur, no ambient box-shadow on chrome at rest.",
-      "Knob is the signature component; everything else is supporting cast.",
-      "Canvas occupies the loudest cell; chrome recedes."
+      "One signal color (orange-signal), reserved for change, active, or being-touched states. Orange against dark warm-grey graphite is the loudest possible accent the chrome supports.",
+      "Red used rarely, only for danger state and the rare typographic emphasis.",
+      "Three semantic state colors at LOW chroma (muted forest green, grounded red, slate blue), each with a single role.",
+      "Three stage colors at LOW chroma (amber OSC, plum-rose FILTER, slate-teal FX) communicating signal flow without competing with orange.",
+      "One chassis neutral family of warm-dark greys, every step tinted slightly toward warm-yellow (hue 70) for an anodized-graphite read instead of charcoal-cool black.",
+      "Two display-surface neutrals (display-bezel, display-screen) reserved for the canvas and information-presenting moments. Even darker than chassis, with light text.",
+      "Flat surfaces. No backdrop-filter blur, no ambient box-shadow on chrome at rest. Floating popovers (toast, video controls, help-tooltip, help-panel) carry small structural cast shadows for separation only.",
+      "Knob is the signature component; everything else is supporting cast. White solid plastic cap on dark chassis is the iconic Octatrack/Push read; arc fill is a single white→orange gradient (no rainbow)."
     ],
     "rules": [
       {
-        "name": "The Pink-Is-Signal Rule",
+        "name": "The Orange-Is-Signal Rule",
         "section": "colors",
-        "body": "Pink (#f72585) appears only where a value is being changed or an effect is active. Destructive confirms use state-danger (true coral); informational status uses state-info (cyan); decorative elements use neutrals or stage colors. Pink in chrome at rest is forbidden. Test: take a screenshot of the app at rest with no interaction. If pink is visible anywhere except the visible effect-card top accent and the active toggle button, the rule is violated."
+        "body": "Orange (#ff5722) appears only where a value is being changed, an effect is active, or a control is currently being touched. Destructive confirms use state-danger (grounded red); informational status uses state-info (slate blue); decorative elements use neutrals or stage colors. Orange in chrome at rest is forbidden. Test: take a screenshot of the app at rest with no interaction. If orange is visible anywhere except the active toggle button, the active filter card's accent edge, and the active scrub thumb, the rule is violated."
       },
       {
-        "name": "The Tinted-Neutral Rule",
+        "name": "The Industrial-Neutral Rule",
         "section": "colors",
-        "body": "Every neutral must carry chroma 0.02 to 0.12 toward hue 310 (warm magenta-violet, one warm step from the original hue 290). Pure greys are forbidden. #000 and #fff are forbidden everywhere in the chrome. The dim-studio palette only works because the eye reads the warm tint as inviting-by-comparison-to-pure-grey, even at low ambient brightness."
+        "body": "Every chassis neutral must carry chroma 0.005 to 0.014 toward hue 70 (warm yellow). Pure greys are forbidden. #000 and #fff are forbidden everywhere in the chrome. The workbench palette only works because the eye reads the warm tint as anodized graphite rather than charcoal-cool black; without it, the chassis flips to a generic dark dashboard. The display-surface neutrals are also tinted toward hue 70, just at much lower lightness."
+      },
+      {
+        "name": "The Display-Is-The-Canvas Rule",
+        "section": "colors",
+        "body": "The canvas viewport sits inside Display Screen (the deepest surface in the system). Around it, Display Bezel (one step lighter dark) frames it like a real screen bezel. The chrome (chassis surfaces) is mid-dark warm grey. The dark-canvas-in-darker-screen-in-mid-grey-chassis cascade is a three-tier depth cue and must not be diluted. Anything lit-and-glowing belongs in display surfaces; anything tactile belongs on chassis surfaces."
+      },
+      {
+        "name": "The Two-Color Rule",
+        "section": "colors",
+        "body": "Orange and red are the only saturated chromas in the chrome. No greens, blues, purples, teals, pinks, or yellows appear as primary surface or accent colors anywhere. Stage labels and state colors are LOW-chroma — they read as tinted greyscale, not as color in the design sense. If you find yourself reaching for a fourth or fifth saturated hue, you are decorating, and FluxKit is not decorated. Filter button gradients are exempt because they are previewing canvas content, which is creative output and itself exempt from the rule."
       },
       {
         "name": "The Signal-Flow Rule",
         "section": "colors",
-        "body": "The three stage dividers are color-coded to signal flow direction: amber (OSC, source) to violet (FILTER, transformation) to teal (FX, output). The eye should be able to scan the sidebar top-to-bottom and feel the input-to-output journey without reading any words. Stage colors appear ONLY on stage-divider labels; using them on any other surface dilutes their meaning."
-      },
-      {
-        "name": "The Three-Pinks Rule",
-        "section": "colors",
-        "body": "FluxKit has three colors that read as pink-ish at a glance, and they must stay distinguishable: pink-signal (#f72585, magenta, signals change/active), state-danger (true coral, signals destructive action), and stage-filter (bright violet, signals the FILTER section). Each lives in its own role. If two of them appear adjacent, audit which roles you have collided."
+        "body": "The three stage dividers are color-coded to signal flow direction: amber (OSC, source) to plum-rose (FILTER, transformation) to slate-teal (FX, output). The eye should be able to scan the sidebar top-to-bottom and feel the input-to-output journey without reading any words. Stage colors appear ONLY on stage-divider labels; using them on any other surface dilutes their meaning. Chroma is intentionally low so stage colors never compete with orange-signal for attention."
       },
       {
         "name": "The Single-Family Rule",
@@ -490,32 +459,47 @@
       {
         "name": "The Letter-Spacing-As-Weight Rule",
         "section": "typography",
-        "body": "Letter-spacing widens with hierarchy importance for uppercase text (0.10em then 0.14em then 0.22em). Use spacing, not size, to differentiate sibling uppercase labels."
+        "body": "Letter-spacing widens with hierarchy importance for uppercase text (0.12em then 0.16em then 0.24em). Use spacing, not size, to differentiate sibling uppercase labels. The wide spacing is the typographic posture of an industrial label."
       },
       {
         "name": "The Flat-By-Default Rule",
         "section": "elevation",
-        "body": "Surfaces at rest have no box-shadow and no backdrop-filter. Depth is tonal, not blurred. If a designer reaches for a shadow to make a card feel elevated, they have failed to use the surface ladder. Re-tint the surface one step lighter instead."
+        "body": "Surfaces at rest have no box-shadow and no backdrop-filter. Depth is tonal, not blurred. If a designer reaches for a shadow to make a card feel elevated, they have failed to use the surface ladder. Re-tint the surface one step LIGHTER instead — in this dark palette, raised reads as lighter (dark-mode convention). The only exception is transient floating surfaces (toast, video controls, help-tooltip, help-panel) that hover over a surface family different from their own; those carry small structural cast shadows for separation, not decoration."
       },
       {
-        "name": "The Modal-Only Shadow Rule",
+        "name": "The Modal-Only Strong-Shadow Rule",
         "section": "elevation",
-        "body": "Only modals (help panel, drop-zone overlay, future confirm dialogs) may carry ambient box-shadow. Toast, cards, sidebar, and top bar must remain flat. A shadow on a non-modal surface is a violation."
+        "body": "Only modals (help panel, drop-zone overlay, future confirm dialogs) may carry the strong modal-lift ambient shadow. Toast and other floating popovers use the smaller float-drop. Cards, sidebar, and top bar must remain fully flat. Adding any shadow to a non-floating chrome surface is a violation."
+      },
+      {
+        "name": "The Spacing-Token Rule",
+        "section": "spacing",
+        "body": "Every padding, margin, and gap value in component CSS must come from a --space-* token. Raw px values for spacing are forbidden in chrome rules. Exceptions: borders (1px solid), focus-ring offsets (2px), the universal reset, and intra-component micro-spacing where the value is part of the component's geometric definition."
+      },
+      {
+        "name": "The Stage-Owns-Staging Rule",
+        "section": "spacing",
+        "body": "Within a stage (OSC, FILTER, FX), control sections do not draw their own bottom borders. The stage-divider is the only horizontal seam in the sidebar. Adding a border-bottom to .control-section over-segments the sidebar and dilutes the three-stage architecture; the eye should read three groups, not eight rows."
       },
       {
         "name": "The Canvas-Is-Loudest Rule",
         "section": "components",
-        "body": "No chrome element on screen may visually outweigh the canvas output. Test: squint at the screen; if your eye lands on a sidebar control before the canvas, the chrome is too loud."
+        "body": "No chrome element on screen may visually outweigh the canvas output. Test: squint at the screen; if your eye lands on a sidebar control before the canvas, the chrome is too loud. The dark-canvas-in-darker-screen-in-mid-grey-chassis cascade is your biggest tool here."
       },
       {
         "name": "The One-Active-Per-Group Rule",
         "section": "components",
-        "body": "Pink may appear on at most one button per radio group at a time. Speed = 4 buttons, exactly one pink. Detect Mode = 2 buttons, exactly one pink. The user always knows which one is selected by scanning for the single pink rectangle."
+        "body": "Orange may appear on at most one button per radio group at a time. Speed = 4 buttons, exactly one orange. Detect Mode = 6 buttons, exactly one orange. The user always knows which one is selected by scanning for the single orange rectangle."
       },
       {
         "name": "The Knob-Is-The-Signature Rule",
         "section": "components",
-        "body": "All other components recede in the design hierarchy. If a new component competes with the knob for visual attention, the new component is wrong. The knob is the only place where chroma + arc + pointer + tooltip all converge."
+        "body": "All other components recede in the design hierarchy. If a new component competes with the knob for visual attention, the new component is wrong. The knob is the only place where chroma + cap + pointer + tooltip all converge."
+      },
+      {
+        "name": "The Display-Vs-Chassis Rule",
+        "section": "components",
+        "body": "Components that present information (toast, help panel, FPS overlay, canvas top-bar buttons) live on display surfaces (deeper black) with light text. Components that present controls (knobs, toggles, action buttons in the sidebar) live on chassis surfaces (mid warm grey) with light text. The boundary is enforced — a control on a display surface or a status readout on a chassis surface breaks the metaphor. Both surface families are dark; what distinguishes them is tonal depth, not text-color inversion."
       },
       {
         "name": "The No-Save Rule",
@@ -524,33 +508,40 @@
       }
     ],
     "dos": [
-      "Do use Pink Signal (#f72585) only when something is changing or active. Destructive confirms use state-danger; informational status uses state-info.",
-      "Do layer surfaces tonally (Bg Stage, Bg Room, Surface Card, Surface Raised, Surface Hover). The lightness ladder IS the depth system.",
-      "Do tint every neutral toward magenta-violet (hue 310, chroma 0.02 to 0.12). The dim-studio relaxation only works with the warm tint.",
-      "Do color-code the three stage dividers by signal-flow direction: amber (OSC) to violet (FILTER) to teal (FX). One color per stage label, hairline rule line stays neutral.",
-      "Do use state-info (cyan) for informational status (modified-from-default dot, future live-recording indicator). Reserve pink-signal for the act of changing.",
-      "Do keep the canvas the loudest element on screen. Test by squinting; if your eye lands on a sidebar control before the canvas, the chrome is too loud.",
+      "Do use Orange Signal (#ff5722) only when something is changing, active, or being touched. Destructive confirms use state-danger; informational status uses state-info.",
+      "Do layer chassis surfaces tonally (Bg Stage, Bg Room, Surface Card, Surface Raised, Surface Hover). Each step is one OKLCH lightness UP — in a dark palette, raised reads as lighter (dark-mode convention).",
+      "Do keep display surfaces (Display Bezel, Display Screen) reserved for the canvas, toast, help panel, and other information-presenting moments. Use light text on display surfaces; use light text on chassis surfaces too — the distinction between the two surface families is tonal depth, not text-color inversion.",
+      "Do tint every chassis neutral toward warm-yellow (hue 70, chroma 0.005 to 0.014). The anodized-graphite read only works with the warm tint.",
+      "Do keep the canvas the loudest element on screen. Test by squinting; if your eye lands on a sidebar control before the canvas, the chrome is too loud. The dark-canvas-in-darker-screen-in-mid-grey-chassis cascade is your biggest tool here.",
       "Do use full-bleed gradient swatches on the filter buttons. The gradient IS the identity; this is the one place visual variety serves recognition over decoration.",
-      "Do wrap long knob labels to 2 lines instead of truncating. The label is a rare moment of legibility in a knob-dense surface.",
-      "Do respect prefers-reduced-motion on every transition. Already implemented globally; audit any new motion against this.",
-      "Do keep the active state of each radio group to exactly one button. The single pink rectangle IS the affordance.",
-      "Do use font-variant-numeric: tabular-nums on every numeric value (knob value, FPS, timecode). Digits must not jitter."
+      "Do wrap long knob labels to 2 lines instead of truncating.",
+      "Do respect prefers-reduced-motion on every transition.",
+      "Do keep the active state of each radio group to exactly one button. The single orange rectangle IS the affordance.",
+      "Do use font-variant-numeric: tabular-nums on every numeric value.",
+      "Do color-code the three stage dividers by signal-flow direction: amber (OSC) to plum-rose (FILTER) to slate-teal (FX). All low-chroma, none competing with orange-signal.",
+      "Do use state-info (slate blue) for informational status (modified-from-default dot).",
+      "Do use --space-* tokens for every padding, margin, and gap.",
+      "Do let the stage-divider own all horizontal staging in the sidebar."
     ],
     "donts": [
-      "Don't use #000 or #fff in the chrome. Even the deepest background is oklch(5% 0.03 310), not pure black. (Swatch palette swatches and filter button gradient previews are user-selectable canvas colors and are exempt.)",
+      "Don't use #000 or #fff in the chrome. Even the deepest display surface is oklch(5% 0.005 70), not pure black. (Swatch palette swatches and filter button gradient previews are user-selectable canvas colors and are exempt.)",
       "Don't use border-left (or any side-stripe border-* greater than 1px) as a colored accent on toasts, cards, list items, or callouts. Use full borders with tone variants.",
       "Don't use background-clip: text to apply a gradient to type. Use a single solid color and let weight or size carry the emphasis.",
-      "Don't use backdrop-filter: blur on chrome at rest. Replace with solid tinted surfaces from the dim-studio ladder.",
-      "Don't apply filter: drop-shadow or box-shadow ambient glow on chrome at rest. The arc gradient and the pointer are crisp on their own; depth is conveyed tonally. Modal-lift is the single justified shadow.",
-      "Don't add a SaaS dashboard look. No soft greys, no identical 12-column card grids, no blue-primary CTA, no 'modern' in the boring sense.",
+      "Don't use backdrop-filter: blur on chrome at rest.",
+      "Don't apply filter: drop-shadow or box-shadow ambient glow on chrome at rest. Only the floating popover surfaces (toast, video controls, help-tooltip, help-panel) carry structural cast shadows; everything non-floating stays flat.",
+      "Don't add a SaaS dashboard look. No soft greys with identical 12-column card grids, no blue-primary CTA, no 'modern' in the boring sense.",
       "Don't add an AI tool look. No gradient orb hero, no beige-and-violet 'soft AI' palette, no large sans-serif marketing voice, no emoji status indicators.",
-      "Don't ship raw form controls. No untreated browser input range, no default select styling, no Bootstrap-grade defaults. The instrument has to feel built.",
-      "Don't introduce a second typeface family. Inter only. Tabular-nums on Inter is the mono role.",
-      "Don't put pink on more than one button per radio group at a time. Exactly one pink rectangle per group is the rule.",
-      "Don't use a modal for anything except help and future confirm-destructive flows. Modals are usually laziness; exhaust inline alternatives first.",
-      "Don't use stage colors (amber, violet, teal) on any surface other than the three stage-divider labels. Diluting them onto buttons, cards, or borders kills the signal-flow read.",
-      "Don't use pink-signal for destructive confirms. That's state-danger (true coral). The two pinks are intentionally different so the user can tell active-state apart from about-to-destroy at a glance.",
-      "Don't use pink-signal for informational status. That's state-info (cyan). The modified-from-default dot is information, not signal."
+      "Don't ship raw form controls. No untreated browser input range, no default select styling, no Bootstrap-grade defaults.",
+      "Don't introduce a second typeface family. Inter only.",
+      "Don't put orange on more than one button per radio group at a time.",
+      "Don't use a modal for anything except help and future confirm-destructive flows.",
+      "Don't use stage colors (amber, plum-rose, slate-teal) on any surface other than the three stage-divider labels.",
+      "Don't use orange-signal for destructive confirms. That's state-danger. The two are intentionally different (danger is redder, lower chroma).",
+      "Don't use orange-signal for informational status. That's state-info (slate blue).",
+      "Don't introduce a fourth or fifth saturated color into the chrome. Orange and red are the system; everything else is greyscale (the stage colors and state colors are LOW-chroma greyscale, not color in the design sense).",
+      "Don't put controls on display surfaces or status readouts on chassis surfaces. The display-vs-chassis split is enforced.",
+      "Don't use raw px values for padding, margin, or gap in chrome rules. Pull from the --space-* scale.",
+      "Don't add border-bottom to .control-section. The stage-divider is the only horizontal seam in the sidebar."
     ]
   }
 }

@@ -9,42 +9,75 @@
 }
 
 /* ============================================================
-   Tokens — see DESIGN.md ("Dim-Studio Palette" + flat-by-default).
-   Surface ladder dark→light: bg-stage < bg-room < surface-card
-   < surface-raised < surface-hover. Depth is tonal, not blurred.
+   Tokens — see DESIGN.md ("The Workbench Palette" + flat-by-default).
 
-   Neutrals are OKLCH-canonical at hue 310 (one warm step from the
-   first dim-studio at hue 290). Brand-fixed signals stay hex.
+   Two surface families:
+     1. CHASSIS ladder, dark warm-grey (raised reads as LIGHTER per
+        dark-mode convention):
+        bg-stage < bg-room < surface-card < surface-raised < surface-hover
+        Used for sidebar, top bar, buttons, knobs, cards — everything tactile.
+        Reads like a graphite/anodized-dark studio chassis (Octatrack /
+        Eurorack / Push 3 dark variant), not the cream TE K.O.II.
+     2. DISPLAY surfaces, deep near-black, two steps:
+        display-bezel > display-screen
+        Used for the canvas viewport, canvas top bar, toast, help panel,
+        FPS overlay — everything that presents information / lets pixel
+        content live.
+     The chassis-vs-display contrast is the primary depth cue — chassis
+     is mid-dark warm grey, display drops to near-black so the canvas
+     reads as a deep embedded screen.
+
+   All neutrals are OKLCH-canonical at hue 70 (warm yellow); chroma kept
+   very low so the chassis reads as graphite, not tinted. Brand-fixed
+   signals stay hex.
+
+   See DESIGN.md §2 "The Workbench Palette" + "The Industrial-Neutral Rule"
+   + "The Display-Is-The-Canvas Rule" + "The Two-Color Rule".
    ============================================================ */
 :root {
-  /* Surface ladder (hue 310) */
-  --bg-stage:        oklch(5%  0.03 310);
-  --bg-room:         oklch(8%  0.04 310);
-  --surface-card:    oklch(15% 0.07 310);
-  --surface-raised:  oklch(20% 0.10 310);
-  --surface-hover:   oklch(28% 0.12 310);
-  --border-hairline: oklch(22% 0.08 310);
+  /* Chassis ladder (hue 70, warm dark grey, dark→light) */
+  --bg-stage:        oklch(14% 0.008 70);
+  --bg-room:         oklch(18% 0.010 70);
+  --surface-card:    oklch(22% 0.012 70);
+  --surface-raised:  oklch(26% 0.012 70);
+  --surface-hover:   oklch(32% 0.014 70);
+  --border-hairline: oklch(34% 0.010 70);
 
-  /* Text ladder (hue 310) */
-  --text-key:    oklch(94% 0.02 310);
-  --text-body:   oklch(85% 0.03 310);
-  --text-muted:  oklch(72% 0.06 310);
-  --text-faint:  oklch(55% 0.09 310);
+  /* Display surfaces (deep, embedded screen — darker than chassis) */
+  --display-bezel:    oklch(8%  0.005 70);
+  --display-screen:   oklch(5%  0.005 70);
+  --display-hairline: oklch(24% 0.005 70);   /* subtle separators on display surfaces */
 
-  /* Signal (brand-fixed, hex canonical) */
-  --pink-signal:  #f72585;
-  --purple-deep:  #7e2bc7;
-  --indigo-cool:  #4361ee;
+  /* Text on chassis (light on dark) */
+  --text-key:    oklch(95% 0.005 70);
+  --text-body:   oklch(82% 0.008 70);
+  --text-muted:  oklch(62% 0.012 70);
+  --text-faint:  oklch(48% 0.014 70);
 
-  /* State (semantic) */
-  --state-ok:     #5be7a6;
-  --state-danger: oklch(70% 0.21 25);    /* true coral, not pink — disambiguates from --pink-signal */
-  --state-info:   oklch(72% 0.15 220);   /* cyan-blue, used for informational status (e.g. modified-from-default) */
+  /* Text on display */
+  --text-on-display: oklch(92% 0.005 70);
 
-  /* Stage flow (signal-flow direction across OSC → FILTER → FX) */
-  --stage-osc:    oklch(75% 0.15 70);    /* warm amber: input, source */
-  --stage-filter: oklch(68% 0.20 290);   /* bright violet: transformation */
-  --stage-fx:     oklch(72% 0.13 195);   /* cool teal: output */
+  /* Signal — orange is the only saturated chrome accent (hex canonical).
+     red-accent is reserved for danger and rare typographic emphasis. */
+  --orange-signal: #ff5722;
+  --red-accent:    #e63946;
+
+  /* Hardware caps for the SVG knob — white cap on dark chassis is the
+     iconic Octatrack / Push / Eurorack-knob read. */
+  --knob-cap-white: oklch(94% 0.005 70);
+  --knob-cap-black: oklch(10% 0.008 70);
+
+  /* State (semantic) — all LOW chroma so they don't compete with --orange-signal.
+     Slightly brighter than the light-chassis equivalents for legibility on dark. */
+  --state-ok:     oklch(65% 0.10 145);   /* muted forest, confirm/done */
+  --state-danger: oklch(60% 0.18 25);    /* grounded red, destructive — distinct from --red-accent */
+  --state-info:   oklch(60% 0.10 235);   /* muted slate blue, informational status (e.g. modified-from-default) */
+
+  /* Stage flow (signal-flow direction across OSC → FILTER → FX) — LOW chroma,
+     bumped up in lightness so the labels read clearly against dark chassis. */
+  --stage-osc:    oklch(68% 0.09 65);    /* muted amber: input, source */
+  --stage-filter: oklch(60% 0.13 5);     /* muted plum: transformation */
+  --stage-fx:     oklch(64% 0.08 220);   /* muted slate-teal: output */
 
   /* Motion */
   --ease-out:       cubic-bezier(0.25, 1, 0.5, 1);
@@ -56,8 +89,8 @@
   --sidebar-width: 240px;
 
   /* Spacing scale — single source of truth for all padding/margin/gap.
-     2xs (2px) added for tight chrome (knob-val, file-status); the rest
-     mirror DESIGN.md's spacing scale. */
+     Unchanged across palette pivots; spacing is rhythm, rhythm doesn't
+     change because the palette did. See DESIGN.md §5 + The Spacing-Token Rule. */
   --space-2xs: 2px;
   --space-xs:  4px;
   --space-sm:  6px;
@@ -66,8 +99,9 @@
   --space-xl:  16px;
   --space-2xl: 22px;
 
-  /* The single justified ambient shadow */
-  --modal-lift: 0 12px 48px oklch(5% 0.03 310 / 0.6);
+  /* The single justified ambient shadow. Deep neutral black, low alpha,
+     reads as a true cast shadow rather than a colored glow. */
+  --modal-lift: 0 12px 48px oklch(0% 0 0 / 0.55);
 }
 
 html, body {
@@ -90,7 +124,7 @@ html, body {
 
 :focus { outline: none; }
 :focus-visible {
-  outline: 2px solid var(--pink-signal);
+  outline: 2px solid var(--orange-signal);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -107,7 +141,7 @@ html, body {
 }
 
 /* ============================================================
-   SIDEBAR — flat surface (Bg Room), tonal layering only.
+   SIDEBAR — chassis surface, tonal layering only.
    ============================================================ */
 #sidebar {
   width: var(--sidebar-width);
@@ -146,16 +180,19 @@ html, body {
 .logo {
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   color: var(--text-key);
 }
 .logo-sub {
   font-size: 9px;
   color: var(--text-faint);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
+/* Icon button (chassis context). Hover LIGHTENS by one tonal step
+   (dark-mode convention). No border-color change on hover; depth is tonal.
+   See DESIGN.md §6 Buttons + The Flat-By-Default Rule. */
 .icon-btn {
   background: var(--surface-raised);
   border: 1px solid var(--border-hairline);
@@ -163,29 +200,40 @@ html, body {
   font-family: inherit;
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: var(--space-sm) var(--space-lg);
   cursor: pointer;
   min-height: 26px;
-  border-radius: 4px;
+  border-radius: 3px;
   transition:
     background  var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out),
     color       var(--duration-base) var(--ease-out);
 }
-.icon-btn:hover { background: var(--surface-hover); border-color: var(--pink-signal); }
+.icon-btn:hover { background: var(--surface-hover); }
 .icon-btn:active { transform: translateY(1px); }
 .icon-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
 .icon-btn.confirming {
-  background: oklch(28% 0.18 25);
+  background: oklch(38% 0.14 25);
   border-color: var(--state-danger);
-  color: var(--state-danger);
+  color: oklch(92% 0.05 25);
 }
+
+/* Icon button on a DISPLAY surface — canvas top bar. Per The
+   Display-Vs-Chassis Rule, controls on display surfaces use the deeper
+   display palette so the bezel reads as continuous. */
+#canvas-topbar .icon-btn {
+  background: var(--display-bezel);
+  border-color: var(--display-hairline);
+  color: var(--text-on-display);
+}
+#canvas-topbar .icon-btn:hover { background: oklch(12% 0.005 70); }
 
 /* ============================================================
    STAGE DIVIDERS — signal-flow color coding (warm → cool).
-   Label tints by stage; hairline rule line stays neutral.
+   Label tints by stage (LOW chroma so it never competes with orange);
+   hairline rule line stays neutral.
+   See DESIGN.md §2 The Signal-Flow Rule + The Two-Color Rule.
    ============================================================ */
 .stage-divider {
   display: flex;
@@ -194,7 +242,7 @@ html, body {
   padding: var(--space-xl) var(--space-xl) var(--space-sm);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -216,10 +264,9 @@ html, body {
 }
 
 /* ============================================================
-   CONTROL SECTIONS — quiet inside a stage. The stage-divider above
-   does the staging work (label + colored hairline rule). Per-section
-   bottom borders would over-segment the sidebar and dilute the OSC
-   / FILTER / FX read; intentionally omitted.
+   CONTROL SECTIONS — quiet inside a stage. Per The Stage-Owns-Staging Rule:
+   the stage-divider above does the staging work; per-section borders are
+   intentionally omitted to keep the OSC/FILTER/FX three-stage read clean.
    ============================================================ */
 .control-section {
   padding: var(--space-md) var(--space-lg);
@@ -231,7 +278,7 @@ html, body {
 .section-label {
   display: block;
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 600;
@@ -248,14 +295,15 @@ label.section-label { cursor: pointer; }
 }
 
 /* Per-effect cards — flat, tonal layer above sidebar.
-   contain: layout style paint isolates the card from the rest of the document
-   so knob drags inside one card don't trigger layout/paint outside it. */
+   surface-card is one step LIGHTER than bg-room (dark-mode convention:
+   raised reads as lighter). contain: layout style paint isolates the card
+   so knob drags inside it don't trigger layout/paint outside. */
 .effect-card {
   margin: var(--space-md) var(--space-lg);
   padding: var(--space-lg);
   background: var(--surface-card);
   border: 1px solid var(--border-hairline);
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -264,16 +312,16 @@ label.section-label { cursor: pointer; }
   transition: border-color var(--duration-base) var(--ease-out);
 }
 .effect-card.active-card {
-  border-color: rgba(247, 37, 133, 0.45);
+  border-color: oklch(70% 0.21 45 / 0.55);
 }
-/* 2px Pink-Signal top accent (full edge, NOT a side-stripe). */
+/* 2px Orange-Signal top accent (full edge, NOT a side-stripe). */
 .effect-card::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: var(--pink-signal);
-  border-radius: 10px 10px 0 0;
+  background: var(--orange-signal);
+  border-radius: 8px 8px 0 0;
 }
 
 .effect-card-header {
@@ -285,7 +333,7 @@ label.section-label { cursor: pointer; }
 .effect-card-title {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-key);
 }
@@ -300,17 +348,13 @@ label.section-label { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
+  border-radius: 2px;
   line-height: 1;
   transition:
-    color        var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out),
-    background   var(--duration-base) var(--ease-out);
+    color  var(--duration-base) var(--ease-out);
 }
 .card-reset-btn:hover {
-  color: var(--pink-signal);
-  border-color: rgba(247, 37, 133, 0.4);
-  background: rgba(247, 37, 133, 0.08);
+  color: var(--orange-signal);
 }
 .card-reset-btn[disabled] {
   opacity: 0.25;
@@ -320,9 +364,9 @@ label.section-label { cursor: pointer; }
 .empty-card {
   margin: var(--space-md) var(--space-lg);
   padding: var(--space-xl) var(--space-lg);
-  background: var(--bg-room);
+  background: var(--bg-stage);
   border: 1px dashed var(--border-hairline);
-  border-radius: 10px;
+  border-radius: 8px;
   text-align: center;
   font-size: 10px;
   color: var(--text-faint);
@@ -345,12 +389,10 @@ label.section-label { cursor: pointer; }
   cursor: pointer;
   text-align: left;
   min-height: 30px;
-  border-radius: 6px;
-  transition:
-    background   var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out);
+  border-radius: 4px;
+  transition: background var(--duration-base) var(--ease-out);
 }
-.action-btn:hover { background: var(--surface-hover); border-color: var(--pink-signal); }
+.action-btn:hover { background: var(--surface-hover); }
 .action-btn:active { transform: translateY(1px); }
 .action-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
 
@@ -383,24 +425,22 @@ label.section-label { cursor: pointer; }
   min-width: 0;
   min-height: 28px;
   text-align: center;
-  border-radius: 5px;
+  border-radius: 4px;
   transition:
     background   var(--duration-base) var(--ease-out),
-    color        var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out);
+    color        var(--duration-base) var(--ease-out);
   white-space: nowrap;
   position: relative;
 }
 .toggle-btn:hover {
   background: var(--surface-hover);
   color: var(--text-key);
-  border-color: var(--pink-signal);
 }
 .toggle-btn.active,
 .toggle-btn[aria-pressed="true"],
 .toggle-btn[aria-checked="true"] {
-  background: var(--pink-signal);
-  color: var(--text-key);
+  background: var(--orange-signal);
+  color: oklch(15% 0.05 30);
   border-color: transparent;
   font-weight: 700;
 }
@@ -408,7 +448,13 @@ label.section-label { cursor: pointer; }
 /* ============================================================
    FILTER BUTTONS — full-bleed gradient swatch (signature).
    The gradient IS the identity, label overlays with text-shadow.
-   3-column CSS Grid (was flex with calc-width hack).
+   3-column CSS Grid.
+
+   Filter swatches are exempt from The Two-Color Rule — they preview
+   creative output (the canvas), and creative output is itself exempt.
+   The scrim uses true black (#000) at varying alpha rather than the
+   chassis hue, because the scrim's job is to mute the swatch enough
+   for the white label to read, not to participate in the chassis palette.
    ============================================================ */
 #filter-group {
   display: grid;
@@ -422,7 +468,7 @@ label.section-label { cursor: pointer; }
   padding: 0;
   position: relative;
   overflow: hidden;
-  color: var(--text-key);
+  color: var(--text-on-display);
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.95),
     0 0 4px rgba(0, 0, 0, 0.6);
@@ -431,9 +477,12 @@ label.section-label { cursor: pointer; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, oklch(5% 0.03 310 / 0.15), oklch(5% 0.03 310 / 0.6));
+  background: linear-gradient(180deg, oklch(0% 0 0 / 0.20), oklch(0% 0 0 / 0.65));
   z-index: 1;
   transition: background var(--duration-base) var(--ease-out);
+}
+#filter-group .toggle-btn:hover::before {
+  background: linear-gradient(180deg, oklch(0% 0 0 / 0.10), oklch(0% 0 0 / 0.55));
 }
 #filter-group .toggle-btn > * { position: relative; z-index: 2; }
 #filter-group .toggle-btn[data-value="none"]       { background: linear-gradient(135deg, #1a0a2e, #2a1545); }
@@ -451,21 +500,24 @@ label.section-label { cursor: pointer; }
 #filter-group .toggle-btn[data-value="thermo"]     { background: linear-gradient(90deg, #000, #220066, #cc0066, #ff6600, #ffff00, #fff); }
 #filter-group .toggle-btn[data-value="falsecolor"] { background: linear-gradient(90deg, #4361ee, #00d4ff, #5be7a6, #ffea00, #f72585); }
 
-/* Active = 2px pink border. No glow. */
+/* Active = 2px orange border. No glow. */
 #filter-group .toggle-btn.active,
 #filter-group .toggle-btn[aria-checked="true"] {
-  border: 2px solid var(--pink-signal);
+  border: 2px solid var(--orange-signal);
   font-weight: 700;
   outline: none;
 }
 #filter-group .toggle-btn.active::before,
 #filter-group .toggle-btn[aria-checked="true"]::before {
-  background: linear-gradient(180deg, oklch(5% 0.03 310 / 0.05), oklch(5% 0.03 310 / 0.45));
+  background: linear-gradient(180deg, oklch(0% 0 0 / 0.05), oklch(0% 0 0 / 0.45));
 }
 
 /* ============================================================
    KNOB COMPONENT — instrument-grade precision.
-   No ambient glow on arc or pointer. Tooltip carries pink border.
+   White solid plastic cap on dark chassis is the iconic Octatrack /
+   Push / Eurorack-knob read. Dark pointer notched into the cap, single
+   white→orange arc indicating value (no rainbow gradient).
+   See DESIGN.md §6 Knob.
    ============================================================ */
 .knob-grid {
   display: grid;
@@ -484,15 +536,15 @@ label.section-label { cursor: pointer; }
   -webkit-user-select: none;
   outline: none;
   padding: var(--space-2xs) 0;
-  border-radius: 6px;
+  border-radius: 5px;
   transition: background var(--duration-base) var(--ease-out);
 }
-.knob:hover { background: rgba(247, 37, 133, 0.05); }
-.knob:focus-visible { background: rgba(247, 37, 133, 0.08); }
+.knob:hover { background: oklch(70% 0.21 45 / 0.10); }
+.knob:focus-visible { background: oklch(70% 0.21 45 / 0.14); }
 /* will-change promotes the knob to its own compositor layer while dragging,
    so the arc/pointer transform isn't repainted against the rest of the card.
    Active only during drag (released on pointerup). */
-.knob.dragging { background: rgba(247, 37, 133, 0.10); will-change: transform; }
+.knob.dragging { background: oklch(70% 0.21 45 / 0.18); will-change: transform; }
 
 .knob-svg {
   width: 40px;
@@ -514,14 +566,15 @@ label.section-label { cursor: pointer; }
   transition: stroke-dashoffset 50ms linear;   /* linear: matches input rate, no ease */
 }
 .knob-pointer {
-  stroke: var(--text-key);
+  stroke: var(--knob-cap-black);
   stroke-width: 2;
   stroke-linecap: round;
 }
 .knob-cap {
-  fill: var(--bg-room);
-  stroke: var(--border-hairline);
+  fill: var(--knob-cap-white);
+  stroke: var(--knob-cap-black);
   stroke-width: 1;
+  stroke-opacity: 0.4;
 }
 
 .knob-label {
@@ -539,7 +592,7 @@ label.section-label { cursor: pointer; }
 }
 
 /* Modified-from-default dot — informational status, not active signal.
-   Cyan (--state-info), reserves --pink-signal for the act of changing. */
+   Slate blue (--state-info), reserves --orange-signal for the act of changing. */
 .knob.modified .knob-label::after {
   content: "";
   display: inline-block;
@@ -561,8 +614,8 @@ label.section-label { cursor: pointer; }
   bottom: calc(-1 * var(--space-xl));
   background: var(--surface-card);
   padding: var(--space-2xs) var(--space-md);
-  border-radius: 4px;
-  border: 1px solid var(--pink-signal);
+  border-radius: 3px;
+  border: 1px solid var(--orange-signal);
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
@@ -591,7 +644,7 @@ label.section-label { cursor: pointer; }
   width: 100%;
   aspect-ratio: 1 / 1;
   border: 1px solid var(--border-hairline);
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   padding: 0;
   transition:
@@ -603,7 +656,7 @@ label.section-label { cursor: pointer; }
   border-color: var(--text-key);
 }
 .swatch-btn.active {
-  border-color: var(--pink-signal);
+  border-color: var(--orange-signal);
 }
 input[type="color"] {
   -webkit-appearance: none;
@@ -611,13 +664,13 @@ input[type="color"] {
   width: 28px;
   height: 24px;
   border: 1px solid var(--border-hairline);
-  border-radius: 4px;
+  border-radius: 3px;
   background: none;
   cursor: pointer;
   padding: 0;
 }
 input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
-input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
 .color-label {
   color: var(--text-muted);
   font-size: 10px;
@@ -637,7 +690,11 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 }
 
 /* ============================================================
-   CANVAS STACK + TOP BAR — flat, no glass.
+   CANVAS STACK + TOP BAR.
+
+   Per The Display-Vs-Chassis Rule, the canvas top bar moves to a
+   display surface (display-bezel) — it's the bezel around the screen.
+   The canvas viewport itself sits in display-screen.
    ============================================================ */
 #canvas-stack {
   flex: 1;
@@ -652,20 +709,20 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   align-items: center;
   gap: var(--space-lg);
   padding: var(--space-md) var(--space-xl);
-  border-bottom: 1px solid var(--border-hairline);
-  background: var(--bg-room);
+  border-bottom: 1px solid var(--display-hairline);
+  background: var(--display-bezel);
   font-size: 10px;
-  color: var(--text-muted);
+  color: oklch(92% 0.005 70 / 0.7);
   letter-spacing: 0.04em;
 }
 #canvas-topbar .topbar-title {
   font-weight: 600;
-  color: var(--text-key);
-  letter-spacing: 0.06em;
+  color: var(--text-on-display);
+  letter-spacing: 0.10em;
 }
 #canvas-topbar .topbar-source {
   flex: 1;
-  color: var(--text-muted);
+  color: oklch(92% 0.005 70 / 0.7);
   font-style: italic;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -679,7 +736,7 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 
 #canvas-area {
   flex: 1;
-  background: var(--bg-stage);
+  background: var(--display-screen);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -692,7 +749,7 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 #placeholder {
@@ -708,36 +765,36 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   flex-direction: column;
   align-items: center;
   gap: var(--space-lg);
-  color: var(--text-muted);
+  color: oklch(92% 0.005 70 / 0.7);
   font-size: 13px;
   letter-spacing: 0.06em;
   text-align: center;
 }
 .placeholder-icon {
   font-size: 56px;
-  color: var(--text-faint);
+  color: oklch(92% 0.005 70 / 0.4);
   line-height: 1;
 }
 .placeholder-hint {
   font-size: 10px;
-  color: var(--text-faint);
-  letter-spacing: 0.14em;
+  color: oklch(92% 0.005 70 / 0.5);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   font-style: italic;
 }
 
-/* Drop-zone overlay — transient, pink hairline halo */
+/* Drop-zone overlay — transient, orange hairline halo */
 #drop-overlay {
   position: absolute;
   inset: var(--space-md);
-  border: 2px dashed var(--pink-signal);
-  border-radius: 8px;
-  background: rgba(247, 37, 133, 0.06);
+  border: 2px dashed var(--orange-signal);
+  border-radius: 6px;
+  background: oklch(70% 0.21 45 / 0.10);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  color: var(--text-key);
+  color: var(--text-on-display);
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -748,7 +805,10 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 }
 #drop-overlay.visible { opacity: 1; }
 
-/* Video controls — solid surface, no glass */
+/* Video controls — chassis surface popover floating over the dark canvas.
+   Per The Display-Vs-Chassis Rule, controls (play, scrub) live on chassis
+   surfaces. Light-grey panel against the dark canvas reads as a control
+   strip dropped onto the screen — a familiar physical-instrument pattern. */
 #video-controls {
   position: absolute;
   bottom: var(--space-lg); left: 50%;
@@ -759,13 +819,14 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   padding: var(--space-md) var(--space-lg);
   background: var(--surface-card);
   border: 1px solid var(--border-hairline);
-  border-radius: 8px;
+  border-radius: 6px;
   z-index: 15;
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-out);
   pointer-events: none;
   min-width: 280px;
   max-width: 60%;
+  box-shadow: 0 4px 16px oklch(0% 0 0 / 0.4);
 }
 #video-controls.visible {
   opacity: 1;
@@ -773,28 +834,26 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 }
 #video-controls.hidden { display: none; }
 #btn-play {
-  background: transparent;
+  background: var(--surface-raised);
   border: 1px solid var(--border-hairline);
   color: var(--text-key);
   width: 28px; height: 28px;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition:
-    background   var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out);
+  transition: background var(--duration-base) var(--ease-out);
 }
-#btn-play:hover { background: var(--surface-hover); border-color: var(--pink-signal); }
+#btn-play:hover { background: var(--surface-hover); }
 #video-scrub {
   flex: 1;
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
-  background: var(--surface-raised);
+  background: var(--bg-stage);
   border-radius: 2px;
   cursor: pointer;
 }
@@ -802,16 +861,16 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   -webkit-appearance: none;
   appearance: none;
   width: 14px; height: 14px;
-  background: var(--pink-signal);
+  background: var(--orange-signal);
   border-radius: 50%;
-  border: 2px solid var(--text-key);
+  border: 2px solid var(--knob-cap-white);
   cursor: pointer;
 }
 #video-scrub::-moz-range-thumb {
   width: 14px; height: 14px;
-  background: var(--pink-signal);
+  background: var(--orange-signal);
   border-radius: 50%;
-  border: 2px solid var(--text-key);
+  border: 2px solid var(--knob-cap-white);
   cursor: pointer;
 }
 .video-time {
@@ -823,17 +882,18 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   text-align: right;
 }
 
-/* FPS overlay */
+/* FPS overlay — information presented on the canvas, lives on display surface
+   per The Display-Vs-Chassis Rule. */
 #fps-overlay {
   position: absolute;
   bottom: var(--space-md); right: var(--space-lg);
   font-size: 10px;
-  color: var(--text-faint);
+  color: oklch(92% 0.005 70 / 0.7);
   font-variant-numeric: tabular-nums;
-  background: var(--surface-card);
+  background: var(--display-bezel);
   padding: var(--space-xs) var(--space-md);
-  border-radius: 4px;
-  border: 1px solid var(--border-hairline);
+  border-radius: 3px;
+  border: 1px solid var(--display-hairline);
   z-index: 12;
   pointer-events: none;
   font-family: inherit;
@@ -841,13 +901,13 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 #fps-overlay.hidden { display: none; }
 
 /* ============================================================
-   HELP PANEL — the only chrome surface allowed --modal-lift.
-   Backdrop is solid dark, no blur (per Flat-By-Default Rule).
+   HELP PANEL — display surface, the only chrome surface allowed
+   --modal-lift. Backdrop is solid dark, no blur (per Flat-By-Default Rule).
    ============================================================ */
 #help-overlay {
   position: fixed;
   inset: 0;
-  background: oklch(5% 0.03 310 / 0.85);
+  background: oklch(0% 0 0 / 0.7);
   z-index: 500;
   display: flex;
   align-items: center;
@@ -856,9 +916,9 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 }
 #help-overlay.hidden { display: none; }
 #help-panel {
-  background: var(--surface-card);
-  border: 1px solid var(--border-hairline);
-  border-radius: 12px;
+  background: var(--display-screen);
+  border: 1px solid var(--display-hairline);
+  border-radius: 10px;
   padding: var(--space-2xl);
   max-width: 480px;
   width: 100%;
@@ -871,17 +931,17 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 #help-panel h2 {
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-key);
+  color: var(--text-on-display);
   margin-bottom: var(--space-lg);
 }
 #help-panel h3 {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: oklch(92% 0.005 70 / 0.7);
   margin-top: var(--space-xl);
   margin-bottom: var(--space-md);
 }
@@ -891,10 +951,10 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   font-size: 10px;
   font-weight: 600;
   padding: var(--space-2xs) var(--space-sm);
-  background: var(--surface-raised);
-  border: 1px solid var(--border-hairline);
-  border-radius: 3px;
-  color: var(--text-key);
+  background: var(--display-bezel);
+  border: 1px solid var(--display-hairline);
+  border-radius: 2px;
+  color: var(--text-on-display);
   min-width: 18px;
   text-align: center;
 }
@@ -904,32 +964,32 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   flex-direction: column;
   gap: var(--space-sm);
   font-size: 11px;
-  color: var(--text-body);
+  color: oklch(92% 0.005 70 / 0.85);
 }
 #help-panel li {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--space-xs) 0;
-  border-bottom: 1px solid var(--border-hairline);
+  border-bottom: 1px solid var(--display-hairline);
 }
-#help-panel li > span:first-child { color: var(--text-body); }
+#help-panel li > span:first-child { color: oklch(92% 0.005 70 / 0.85); }
 #help-panel li > span:last-child  { display: flex; gap: var(--space-xs); }
 #help-close {
   position: absolute;
   top: var(--space-md); right: var(--space-lg);
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: oklch(92% 0.005 70 / 0.6);
   font-size: 20px;
   cursor: pointer;
   width: 28px; height: 28px;
-  border-radius: 4px;
+  border-radius: 3px;
   transition:
     color      var(--duration-base) var(--ease-out),
     background var(--duration-base) var(--ease-out);
 }
-#help-close:hover { color: var(--text-key); background: var(--surface-hover); }
+#help-close:hover { color: var(--text-on-display); background: oklch(92% 0.005 70 / 0.10); }
 
 /* ============================================================
    Help tooltip — cursor-following description popup.
@@ -938,6 +998,9 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
    z-index 50: above all UI chrome (knob-val=10, topbar=12, drop=20),
    below modals (help-panel=500) and toasts (1000) so it never covers
    blocking dialogs or status notifications.
+
+   Lives on chassis-surface family since it primarily explains chassis
+   controls. Floats over either chassis or canvas surfaces.
    ============================================================ */
 .help-tooltip {
   position: fixed;
@@ -945,9 +1008,9 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   left: 0;
   max-width: 240px;
   padding: var(--space-sm) var(--space-md);
-  background: var(--surface-card);
+  background: var(--surface-raised);
   border: 1px solid var(--border-hairline);
-  border-radius: 4px;
+  border-radius: 3px;
   color: var(--text-body);
   font-size: 11px;
   line-height: 1.45;
@@ -957,6 +1020,7 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   z-index: 50;
   white-space: normal;
   will-change: transform;
+  box-shadow: 0 2px 10px oklch(0% 0 0 / 0.45);
 }
 .help-tooltip.visible { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
@@ -964,7 +1028,9 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 }
 
 /* ============================================================
-   TOAST — bottom-center, full border (NO side-stripe), flat.
+   TOAST — bottom-center, full border (NO side-stripe).
+   Lives on a display surface (display-bezel) per The Display-Vs-Chassis
+   Rule — toasts read as a status display floating above the chassis.
    Tone variants tint the entire border, not just one edge.
    ============================================================ */
 #toast-region {
@@ -981,17 +1047,18 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   pointer-events: none;
 }
 .toast {
-  background: var(--surface-card);
-  border: 1px solid var(--border-hairline);
-  color: var(--text-key);
+  background: var(--display-bezel);
+  border: 1px solid var(--display-hairline);
+  color: var(--text-on-display);
   padding: var(--space-md) var(--space-lg);
   font-size: 11px;
   letter-spacing: 0.03em;
   line-height: 1.4;
-  border-radius: 6px;
+  border-radius: 5px;
   pointer-events: auto;
   contain: layout style paint;
   animation: toast-in var(--duration-slow) var(--ease-out);
+  box-shadow: 0 4px 16px oklch(0% 0 0 / 0.4);
 }
 .toast.toast-error { border-color: var(--state-danger); }
 .toast.toast-ok    { border-color: var(--state-ok); }
