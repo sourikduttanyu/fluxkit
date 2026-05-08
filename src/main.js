@@ -10,6 +10,7 @@ import { applyGLFilter } from './glFilters.js';
 import { applyWave, resetWave } from './wave.js';
 import { ensureContext, uploadVideoFrame, compositeToCanvas2D, getChainFBOs } from './glContext.js';
 import { applyCompose } from './glCompose.js';
+import { BlobOneEuroFilter } from './oneEuroFilter.js';
 
 const DEFAULTS = Object.freeze({
   // Pipeline stages.
@@ -1595,6 +1596,12 @@ function loadVideoSource(url, label) {
 function resetAllState() {
   resetFrameHistory(); resetTracker(); resetVoronoi(); resetCA(); resetWave();
   cachedBlobs = []; frameCount = 0;
+  // Smoothing state — both backends — gets purged so the next source
+  // doesn't inherit a stale dead-filter pool that could mis-match its
+  // first frame's blobs to leftover positions from the previous video.
+  _activeFilters.clear();
+  _deadFilters.clear();
+  _displayBlobs.clear();
 }
 
 function updateSourceLabel(text) {
@@ -1726,24 +1733,146 @@ const _ro = new ResizeObserver(resizeCanvas);
 _ro.observe(canvasArea);
 window.addEventListener('resize', resizeCanvas);
 
-// ---- Per-render-frame blob smoothing (EMA on tracker-id-keyed positions) ----
-// state.blobSmooth = 0 → bypass (instant response, current behaviour).
-// state.blobSmooth → 1 → strong EMA, blobs lag for visual smoothness.
-// Solves both: per-frame jitter at updateInterval=1, and the freeze+snap
-// at updateInterval>1 (between detections, displayed positions interpolate
-// toward the cached target instead of sitting still).
-const _displayBlobs = new Map(); // id → smoothed blob
+// ---- Per-render-frame blob smoothing ----
+// Two backends. One Euro is the active path; EMA is kept as a documented
+// dead branch behind the constant below for easy rollback / A/B comparison
+// if One Euro misbehaves on some real-world input.
+//
+//   'oneEuro' (default) — adaptive low-pass per Casiez 2012. Heavy
+//      smoothing when blob is near-stationary (kills sub-pixel jitter),
+//      cutoff opens with speed (low lag when moving). Combined with the
+//      sub-pixel parabolic peak refinement in blobDetector.js, this is
+//      the post-jitter pipeline.
+//   'ema' — original exponential-moving-average path. Single fixed alpha,
+//      so it trades stationary smoothness against responsiveness with no
+//      adaptive recovery. Kept for fallback only.
+//
+// state.blobSmooth = 0 → bypass either backend entirely (raw Kalman out).
 
-function smoothBlobs(latest) {
+const BLOB_SMOOTH_BACKEND = 'oneEuro';
+
+// One Euro knob mapping. minCutoff is the cutoff at zero speed; lower =
+// smoother stationary. Linear remap so the knob's existing 0→1 range still
+// covers passthrough → very smooth without a state migration.
+//   smooth=0  → 120 Hz  (effectively passthrough; well above any plausible
+//                       blob update rate, so filter is a no-op)
+//   smooth=1  →   1 Hz  (canonical "very smooth" Casiez value)
+// beta is fixed to a sane default for cursor/blob-scale motion. Held
+// internally rather than exposed so the UI stays single-knob; if it ever
+// needs tuning per use case, lift it to its own knob.
+const ONE_EURO_MAX_CUTOFF_HZ = 120;
+const ONE_EURO_MIN_CUTOFF_HZ = 1;
+const ONE_EURO_BETA          = 0.01;
+
+// Respawn-match window. When a tracker id disappears (Kalman cull or
+// association miss → new id spawned at near the same spot), we keep the
+// dying filter alive for a short window so a nearby new id can inherit
+// its filter state instead of snapping to the raw measurement. Without
+// this, smooth>0 produces a visible pop on every brief detection dropout.
+//   TTL_FRAMES @ 60fps ≈ 167ms — long enough to span 1-2 missed detection
+//   windows at typical updateInterval=1, short enough that a genuinely new
+//   blob entering near a recently-dead one still claims its own filter.
+//   DIST_FRAC tighter than Kalman's 0.25 because we expect the respawn to
+//   sit basically on top of the dead position, not anywhere on screen.
+const RESPAWN_TTL_FRAMES = 10;
+const RESPAWN_DIST_FRAC  = 0.05;
+
+// One Euro state pools.
+const _activeFilters = new Map();  // tracker id → { filter, lastBlob }
+const _deadFilters   = new Map();  // tracker id → { filter, lastBlob, ttl }
+
+// Legacy EMA state (only touched when BLOB_SMOOTH_BACKEND === 'ema').
+const _displayBlobs = new Map();   // id → smoothed blob
+
+function _smoothBlobsOneEuro(latest, canvasW) {
+  const smooth = state.blobSmooth;
+  if (smooth <= 0.001) {
+    if (_activeFilters.size) _activeFilters.clear();
+    if (_deadFilters.size)   _deadFilters.clear();
+    return latest;
+  }
+
+  const minCutoff = ONE_EURO_MAX_CUTOFF_HZ - smooth * (ONE_EURO_MAX_CUTOFF_HZ - ONE_EURO_MIN_CUTOFF_HZ);
+  const beta      = ONE_EURO_BETA;
+  const tNow      = performance.now();
+  const maxRespawnDist = canvasW * RESPAWN_DIST_FRAC;
+
+  const out = new Array(latest.length);
+  const seenIds = new Set();
+
+  for (let i = 0; i < latest.length; i++) {
+    const b = latest[i];
+    seenIds.add(b.id);
+
+    let entry = _activeFilters.get(b.id);
+
+    if (!entry) {
+      // New id this frame. Try to inherit a recently-dead filter that's
+      // spatially close — covers the common case where a tracker briefly
+      // missed detection and was respawned with a fresh id by Kalman
+      // (or the user paused → resumed with id churn). Without inheritance
+      // the new id snaps instantly to b on first measurement and produces
+      // a visible pop at smooth>0.
+      let bestKey  = null;
+      let bestDist = maxRespawnDist;
+      for (const [oldId, dead] of _deadFilters) {
+        const dx = dead.lastBlob.cx - b.cx;
+        const dy = dead.lastBlob.cy - b.cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bestDist) { bestDist = dist; bestKey = oldId; }
+      }
+
+      if (bestKey !== null) {
+        const revived = _deadFilters.get(bestKey);
+        _deadFilters.delete(bestKey);
+        revived.filter.setParams(minCutoff, beta);
+        entry = revived;   // shape: { filter, lastBlob } — drop ttl on revival
+      } else {
+        entry = { filter: new BlobOneEuroFilter(minCutoff, beta), lastBlob: b };
+      }
+      _activeFilters.set(b.id, entry);
+    } else {
+      // Live retune so knob changes take effect on the very next sample.
+      entry.filter.setParams(minCutoff, beta);
+    }
+
+    const smoothed = entry.filter.filterBlob(b, tNow);
+    entry.lastBlob = smoothed;
+    out[i] = smoothed;
+  }
+
+  // Two-pass disposal — collect dying ids first, then mutate. Avoids
+  // iterator-while-mutating gotchas across JS engines.
+  const dying = [];
+  for (const id of _activeFilters.keys()) {
+    if (!seenIds.has(id)) dying.push(id);
+  }
+  for (const id of dying) {
+    const entry = _activeFilters.get(id);
+    _activeFilters.delete(id);
+    _deadFilters.set(id, { filter: entry.filter, lastBlob: entry.lastBlob, ttl: RESPAWN_TTL_FRAMES });
+  }
+
+  // Tick down dead pool, cull expired.
+  const expired = [];
+  for (const [id, dead] of _deadFilters) {
+    dead.ttl--;
+    if (dead.ttl <= 0) expired.push(id);
+  }
+  for (const id of expired) _deadFilters.delete(id);
+
+  return out;
+}
+
+// Legacy EMA path. Kept verbatim from the pre-One-Euro implementation so
+// flipping BLOB_SMOOTH_BACKEND back is a single-character change. Do not
+// edit this without also reverting the doc comment above.
+function _smoothBlobsEMALegacy(latest) {
   const smooth = state.blobSmooth;
   if (smooth <= 0.001) {
     if (_displayBlobs.size) _displayBlobs.clear();
     return latest;
   }
-  // alpha is the per-frame pull toward the target.
-  // smooth=0   → alpha=1.0   (instant, but bypassed above)
-  // smooth=0.5 → alpha=0.525 (responsive)
-  // smooth=1   → alpha=0.05  (very smooth, ~14-frame half-life @ 60fps)
   const alpha = 1 - smooth * 0.95;
   const next = new Map();
   const out = new Array(latest.length);
@@ -1768,6 +1897,12 @@ function smoothBlobs(latest) {
   _displayBlobs.clear();
   for (const [k, v] of next) _displayBlobs.set(k, v);
   return out;
+}
+
+function smoothBlobs(latest, canvasW) {
+  return BLOB_SMOOTH_BACKEND === 'oneEuro'
+    ? _smoothBlobsOneEuro(latest, canvasW)
+    : _smoothBlobsEMALegacy(latest);
 }
 
 // ---- Render loop ----
@@ -1831,7 +1966,7 @@ function renderFrame(nowDOMHi) {
       cachedBlobs = trackBlobs(scaledRaw, cw, state.maxBlobs);
     }
   }
-  const blobs = smoothBlobs(cachedBlobs);
+  const blobs = smoothBlobs(cachedBlobs, cw);
 
   // GL dispatch — multi-stage chain pipeline.
   //

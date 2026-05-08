@@ -139,7 +139,41 @@ export function detectBlobs(imageData, threshold, maxBlobs, mode = 'motion') {
         }
       }
 
-      if (maxVal > 0) candidates.push({ cx: maxX, cy: maxY, val: maxVal, cw, ch });
+      if (maxVal > 0) {
+        // Sub-pixel parabolic peak refinement. Fit a 1D parabola through
+        // strength[maxX-1, maxX, maxX+1] (and same for Y), use the analytic
+        // vertex offset to get a fractional center inside the cell.
+        //   offset = 0.5 * (s[-1] - s[+1]) / (s[-1] - 2*s[0] + s[+1])
+        // This kills the integer-pixel quantization that makes detected
+        // centers hop ±1 cell between frames even when the real blob
+        // barely moved — the dominant source of stationary-blob jitter.
+        // Skip when the peak is on the frame border (no valid neighbor) or
+        // the denominator is ~0 (locally flat region — no defined vertex).
+        let subX = maxX, subY = maxY;
+        if (maxX > 0 && maxX < width - 1) {
+          const sL = strength[maxY * width + (maxX - 1)];
+          const sR = strength[maxY * width + (maxX + 1)];
+          const denom = sL - 2 * maxVal + sR;
+          if (denom < -1e-6) {
+            let off = 0.5 * (sL - sR) / denom;
+            if (off >  0.5) off =  0.5;
+            if (off < -0.5) off = -0.5;
+            subX = maxX + off;
+          }
+        }
+        if (maxY > 0 && maxY < height - 1) {
+          const sU = strength[(maxY - 1) * width + maxX];
+          const sD = strength[(maxY + 1) * width + maxX];
+          const denom = sU - 2 * maxVal + sD;
+          if (denom < -1e-6) {
+            let off = 0.5 * (sU - sD) / denom;
+            if (off >  0.5) off =  0.5;
+            if (off < -0.5) off = -0.5;
+            subY = maxY + off;
+          }
+        }
+        candidates.push({ cx: subX, cy: subY, val: maxVal, cw, ch });
+      }
     }
   }
 
